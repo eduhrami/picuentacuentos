@@ -289,17 +289,22 @@ ping picuentacuentos.local
    ```
 5. Restart app:
    ```bash
-   ssh pi@picuentacuentos.local "sudo systemctl restart picuentacuentos"
+   ssh pi@picuentacuentos.local "sudo systemctl restart getty@tty1"
    ```
 
 ### No Audio Output
 
-```bash
-# Force 3.5mm output
-ssh pi@picuentacuentos.local "amixer cset numid=3 1"
+Audio is permanently routed to the 3.5mm jack via `/etc/asound.conf` (card 1 = bcm2835 Headphones).
 
-# Test audio
-ssh pi@picuentacuentos.local "speaker-test -t wav -c 2"
+```bash
+# Check ALSA default device
+ssh pi@picuentacuentos.local "aplay -l"
+
+# Test audio output (no -D flag needed — asound.conf routes to jack)
+ssh pi@picuentacuentos.local "aplay /usr/share/sounds/alsa/Front_Center.wav"
+
+# Adjust volume (card 1)
+ssh pi@picuentacuentos.local "amixer -c 1 sset PCM 85%"
 ```
 
 ---
