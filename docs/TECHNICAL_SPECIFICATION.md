@@ -65,7 +65,7 @@ openssh-server
 ### 2.1 Directory Layout
 
 ```
-/home/pi/rp4player/
+/home/pi/src/rp4layer/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                      # Application entry point
@@ -238,12 +238,12 @@ class StorySettings:
 class MediaSettings:
     auto_scan: bool = True
     scan_interval_seconds: int = 60
-    media_path: str = "/home/pi/rp4player/media"
+    media_path: str = "/home/pi/src/rp4layer/media"
 
 @dataclass
 class SystemSettings:
     log_level: str = "INFO"
-    log_file: str = "/home/pi/rp4player/logs/app.log"
+    log_file: str = "/home/pi/src/rp4layer/logs/app.log"
 
 @dataclass
 class Settings:
@@ -307,11 +307,11 @@ class Settings:
   "media": {
     "auto_scan": true,
     "scan_interval_seconds": 60,
-    "media_path": "/home/pi/rp4player/media"
+    "media_path": "/home/pi/src/rp4layer/media"
   },
   "system": {
     "log_level": "INFO",
-    "log_file": "/home/pi/rp4player/logs/app.log"
+    "log_file": "/home/pi/src/rp4layer/logs/app.log"
   }
 }
 ```
@@ -598,13 +598,13 @@ Port 22
 
 ```bash
 # Single file
-scp alarm-sound.mp3 pi@rp4player.local:/home/pi/rp4player/media/alarms/
+scp alarm-sound.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
 
 # Multiple files
-scp *.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 # Entire directory
-scp -r my-stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp -r my-stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 **From Windows:**
@@ -614,16 +614,16 @@ Using WinSCP or FileZilla:
 - Port: 22
 - Username: pi
 - Password: [your password]
-- Remote path: /home/pi/rp4player/media/
+- Remote path: /home/pi/src/rp4layer/media/
 
 **Using rsync (recommended for large collections):**
 
 ```bash
 # Sync entire media library
-rsync -av --progress /local/media/ pi@rp4player.local:/home/pi/rp4player/media/
+rsync -av --progress /local/media/ pi@rp4player.local:/home/pi/src/rp4layer/media/
 
 # Sync only stories
-rsync -av --progress /local/stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+rsync -av --progress /local/stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 ### 9.3 Media File Guidelines
@@ -678,7 +678,7 @@ if [ -z "$LOCAL_DIR" ] || [ -z "$REMOTE_TYPE" ]; then
     exit 1
 fi
 
-REMOTE_DIR="/home/pi/rp4player/media/$REMOTE_TYPE/"
+REMOTE_DIR="/home/pi/src/rp4layer/media/$REMOTE_TYPE/"
 
 echo "Uploading $LOCAL_DIR to $PI_HOST:$REMOTE_DIR"
 rsync -av --progress "$LOCAL_DIR/" "$PI_HOST:$REMOTE_DIR"

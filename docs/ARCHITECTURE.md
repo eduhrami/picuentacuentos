@@ -167,23 +167,26 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 
 | Component | Technology | Version | Purpose |
 |-----------|-----------|---------|---------|
-| Operating System | Raspberry Pi OS (Lite) | 11+ (Bullseye) | Base system |
+| Operating System | Raspberry Pi OS Lite (64-bit) | 13+ (Trixie) | Base system |
 | Programming Language | Python | 3.9+ | Application development |
-| UI Framework | Kivy | 2.1.0+ | Touch interface |
-| Audio Library | pygame | 2.5.0+ | MP3 playback |
-| Scheduler | APScheduler | 3.10.0+ | Alarm scheduling |
-| Database | SQLite | 3.x | Alarm storage |
+| UI Framework | Kivy | 2.2.1+ | Touch interface |
+| Audio Library | pygame | 2.5.2+ | MP3 playback |
+| Scheduler | APScheduler | 3.10.4+ | Alarm scheduling |
+| Storage | JSON files | Native | Alarm and media data |
+| File Monitoring | watchdog | 3.0.0+ | Media auto-detection |
 | SSH Server | OpenSSH | Native | Remote media management |
 | Audio Output | ALSA | Native | Audio routing to 3.5mm |
+| Display | X server (fbdev) | Native | Kiosk UI on LCD /dev/fb1 |
 
 ### 3.2 Python Dependencies
 
 ```
-kivy==2.1.0
-pygame==2.5.0
-APScheduler==3.10.1
-pyudev==0.24.0
-mutagen==1.46.0  # MP3 metadata reading
+kivy==2.2.1
+pygame==2.5.2
+APScheduler==3.10.4
+watchdog==3.0.0
+mutagen==1.47.0
+python-dateutil==2.8.2
 ```
 
 ### 3.3 System Dependencies
@@ -425,7 +428,7 @@ class EventType(Enum):
 
 ### 5.1 Database Schema (SQLite)
 
-**File:** `/home/pi/rp4player/data/rp4player.db`
+**File:** `/home/pi/src/rp4layer/data/rp4player.db`
 
 ```sql
 -- Alarms Table
@@ -480,7 +483,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 
 ### 5.2 Configuration Files
 
-**File:** `/home/pi/rp4player/config/settings.json`
+**File:** `/home/pi/src/rp4layer/config/settings.json`
 
 ```json
 {
@@ -507,11 +510,11 @@ CREATE INDEX idx_media_type ON media_files(file_type);
   },
   "usb": {
     "auto_sync": true,
-    "media_path": "/home/pi/rp4player/media"
+    "media_path": "/home/pi/src/rp4layer/media"
   },
   "system": {
     "log_level": "INFO",
-    "log_file": "/home/pi/rp4player/logs/app.log"
+    "log_file": "/home/pi/src/rp4layer/logs/app.log"
   }
 }
 ```
@@ -519,7 +522,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 ### 5.3 File System Structure
 
 ```
-/home/pi/rp4player/
+/home/pi/src/rp4layer/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                    # Application entry point
@@ -847,7 +850,7 @@ def set_app_volume(level: float):
 
 **Read-Only Root Filesystem:**
 - Enable overlayfs to prevent SD card corruption
-- Mount `/home/pi/rp4player/data` as read-write
+- Mount `/home/pi/src/rp4layer/data` as read-write
 - Regular database backups to USB
 
 **File Validation:**
@@ -909,7 +912,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('/home/pi/rp4player/logs/app.log'),
+        logging.FileHandler('/home/pi/src/rp4layer/logs/app.log'),
         logging.StreamHandler()
     ]
 )
@@ -970,8 +973,8 @@ sudo apt-get install -y \
 sudo amixer cset numid=3 1
 
 # Create application directory
-mkdir -p /home/pi/rp4player
-cd /home/pi/rp4player
+mkdir -p /home/pi/src/rp4layer
+cd /home/pi/src/rp4layer
 
 # Create virtual environment
 python3 -m venv venv
@@ -993,36 +996,12 @@ cp config/settings.default.json config/settings.json
 # Set permissions
 chmod +x app/main.py
 
-# Create systemd service
-sudo tee /etc/systemd/system/rp4player.service > /dev/null <<EOF
-[Unit]
-Description=RaspberryPi Kids Audio Player
-After=sound.target
-
-[Service]
-Type=simple
-User=pi
-WorkingDirectory=/home/pi/rp4player
-ExecStart=/home/pi/rp4player/venv/bin/python /home/pi/rp4player/app/main.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# Enable and start service
-sudo systemctl daemon-reload
-sudo systemctl enable rp4player.service
-
-# Configure auto-start on boot (for GUI)
-mkdir -p /home/pi/.config/autostart
-tee /home/pi/.config/autostart/rp4player.desktop > /dev/null <<EOF
-[Desktop Entry]
-Type=Application
-Name=RP4Player
-Exec=/home/pi/rp4player/venv/bin/python /home/pi/rp4player/app/main.py
-EOF
+# Configure kiosk app launch (app starts via X session, not as a service)
+# Edit ~/kiosk.conf on the Pi to point to the app:
+#   KIOSK_APP="python3 /home/pi/src/rp4layer/app/main.py"
+# Then restart the X session:
+#   sudo systemctl restart getty@tty1
+# See docs/DISPLAY_SETUP.md for full kiosk configuration.
 
 echo "=== Setup Complete ==="
 echo "Reboot to start the application"
@@ -1032,60 +1011,51 @@ echo "Reboot to start the application"
 
 **1. Display Configuration:**
 
-For SPI displays, edit `/boot/config.txt`:
+Edit `/boot/firmware/config.txt`:
 ```
-# Enable SPI
-dtparam=spi=on
-
-# LCD settings (example for Waveshare 3.5")
-dtoverlay=waveshare35a
-hdmi_force_hotplug=1
-hdmi_cvt=480 320 60 1 0 0 0
-hdmi_group=2
-hdmi_mode=87
+dtoverlay=tft35a:rotate=90
 ```
 
-**2. Touch Calibration:**
+Add `consoleblank=0` to `/boot/firmware/cmdline.txt` (on the single existing line).
+
+**2. X Server Kiosk Setup:**
+
+The app runs under X server on the LCD framebuffer — no desktop environment needed.
+See `DISPLAY_SETUP.md` for the complete configuration (xorg.conf, autologin,
+.bash_profile, .xinitrc, kiosk.conf). Local copies of all config files are in `config/`.
+
+**3. Touch Calibration:**
 ```bash
 sudo apt-get install xinput-calibrator
-DISPLAY=:0.0 xinput_calibrator
-```
-
-**3. Disable Screen Blanking:**
-
-Edit `/etc/xdg/lxsession/LXDE-pi/autostart`:
-```
-@xset s off
-@xset -dpms
-@xset s noblank
+DISPLAY=:0 xinput_calibrator
 ```
 
 ### 9.4 Startup Sequence
 
 ```
 1. Boot Raspberry Pi OS
-2. Start systemd services
-3. Initialize ALSA audio
-4. Launch rp4player.service
-   ├── Load configuration
-   ├── Initialize database connection
-   ├── Start audio engine
-   ├── Start alarm scheduler
-   ├── Start USB monitor
-   ├── Initialize UI (Kivy)
-   └── Show home screen
-5. Ready for user interaction
+2. systemd autologins user pi on tty1
+3. .bash_profile starts X server on /dev/fb1 (restart loop)
+4. .xinitrc reads kiosk.conf, launches app (restart loop)
+5. App process starts:
+   ├── Load configuration (JSON)
+   ├── Start audio engine (pygame)
+   ├── Start alarm scheduler (APScheduler)
+   ├── Start media file watcher (watchdog)
+   ├── Initialize UI (Kivy, DISPLAY=:0)
+   └── Show home screen on LCD
+6. Ready for user interaction
 ```
 
 ### 9.5 Update Procedure
 
 **Application Updates:**
 ```bash
-cd /home/pi/rp4player
+cd /home/pi/src/rp4layer
 git pull origin main
 source venv/bin/activate
 pip install -r requirements.txt
-sudo systemctl restart rp4player.service
+sudo systemctl restart getty@tty1
 ```
 
 **Content Updates:**

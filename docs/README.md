@@ -158,23 +158,18 @@ rp4layer/
 │   ├── storage/             # JSON storage layer
 │   ├── audio/               # Audio playback engine
 │   ├── scheduling/          # Alarm scheduler
-│   ├── media/               # Media scanner & file watcher (NEW!)
+│   ├── media/               # Media scanner & file watcher
 │   ├── ui/                  # Kivy UI components
 │   └── main.py              # Application entry point
 │
-├── config/                  # Configuration files
+├── config/                  # Pi configuration files (mirrored from device)
 ├── data/                    # Data storage (JSON)
+├── docs/                    # Project documentation
 ├── media/                   # Media files (SSH upload target)
 │   ├── alarms/             # Alarm sound files
 │   └── stories/            # Story MP3 files
 ├── mockups/                # UI mockups (HTML)
-│
-├── ARCHITECTURE.md          # Architecture documentation
-├── TECHNICAL_SPECIFICATION_v2.md  # Technical specs (v2.0 SSH)
-├── MEDIA_MANAGEMENT.md     # Media upload guide
-├── CHANGES_v2.md           # Changes from v1.0
-├── setup.sh                # Installation script
-└── README_v2.md            # This file
+└── setup.sh                # Installation script
 ```
 
 ---
@@ -214,22 +209,17 @@ Edit `/home/pi/rp4player/config/settings.json`:
 ## 🔧 Management Commands
 
 ```bash
-# Start application
-cd /home/pi/rp4player
-./start.sh
-
-# Stop application
-./stop.sh
-
-# Backup configuration
-./backup.sh
+# Start application (kiosk restarts automatically — use this to apply kiosk.conf changes)
+sudo systemctl restart getty@tty1
 
 # View logs
-tail -f logs/app.log
+tail -f /home/pi/src/rp4layer/logs/app.log
 
-# System service management
-sudo systemctl status rp4player
-sudo systemctl restart rp4player
+# Backup configuration
+cd /home/pi/src/rp4layer && ./backup.sh
+
+# Check what is running on the display
+ps aux | grep -E "Xorg|startx|main.py" | grep -v grep
 ```
 
 ---
@@ -316,12 +306,12 @@ ssh pi@rp4player.local "speaker-test -t wav -c 2"
 
 ## 📚 Documentation
 
-- [Installation Guide](INSTALL_v2.md) - Step-by-step setup
+- [Installation Guide](INSTALL.md) - Step-by-step setup
 - [Architecture Document](ARCHITECTURE.md) - System design
-- [Technical Specification](TECHNICAL_SPECIFICATION_v2.md) - Detailed specs (v2.0)
+- [Technical Specification](TECHNICAL_SPECIFICATION.md) - Detailed specs
 - [Media Management Guide](MEDIA_MANAGEMENT.md) - Complete upload guide
-- [Changes from v1.0](CHANGES_v2.md) - What's new in v2.0
-- [UI Mockups](mockups/index.html) - Interactive previews
+- [Display & Kiosk Setup](DISPLAY_SETUP.md) - LCD and X server configuration
+- [UI Mockups](../mockups/index.html) - Interactive previews
 
 ---
 
@@ -375,7 +365,7 @@ ssh pi@rp4player.local "speaker-test -t wav -c 2"
 - Same touchscreen interface
 - Same audio quality and performance
 
-See [CHANGES_v2.md](CHANGES_v2.md) for complete details.
+See [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) for implementation details.
 
 ---
 
@@ -433,7 +423,7 @@ For issues and questions:
 1. Check [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for upload help
 2. Review logs: `ssh pi@rp4player.local "tail -f /home/pi/rp4player/logs/app.log"`
 3. See [Troubleshooting](#-troubleshooting) section above
-4. Check [CHANGES_v2.md](CHANGES_v2.md) for migration info
+4. Check [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) for migration info
 
 ---
 

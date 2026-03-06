@@ -21,7 +21,7 @@ hostname -I
 
 ```bash
 # From your computer's terminal
-scp my-story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp my-story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 **That's it!** The file will appear in the app within 60 seconds.
@@ -31,7 +31,7 @@ scp my-story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
 ## Directory Structure
 
 ```
-/home/pi/rp4player/media/
+/home/pi/src/rp4layer/media/
 ├── alarms/          ← Upload alarm sounds here (15-60 seconds)
 └── stories/         ← Upload bedtime stories here (5-30 minutes)
 ```
@@ -46,16 +46,16 @@ scp my-story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
 
 ```bash
 # Single file
-scp story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 # Multiple files from current directory
-scp *.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 # Entire folder (preserves structure)
-scp -r my-stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp -r my-stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 # Sync with rsync (recommended for large libraries)
-rsync -av --progress ~/Music/Stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+rsync -av --progress ~/Music/Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 #### Windows (PowerShell)
@@ -65,10 +65,10 @@ rsync -av --progress ~/Music/Stories/ pi@rp4player.local:/home/pi/rp4player/medi
 # Already included in modern Windows
 
 # Upload file
-scp story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 # Or use PSCP (PuTTY)
-pscp story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+pscp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 ### 🖱️ GUI Clients
@@ -131,7 +131,7 @@ if [[ "$MEDIA_TYPE" != "alarms" && "$MEDIA_TYPE" != "stories" ]]; then
     exit 1
 fi
 
-REMOTE_PATH="/home/pi/rp4player/media/$MEDIA_TYPE/"
+REMOTE_PATH="/home/pi/src/rp4layer/media/$MEDIA_TYPE/"
 
 echo "📤 Uploading $LOCAL_PATH to $PI_HOST:$REMOTE_PATH"
 rsync -av --progress "$LOCAL_PATH/" "$PI_HOST:$REMOTE_PATH"
@@ -206,27 +206,27 @@ The app will display:
 ### Upload New Story
 
 ```bash
-scp "Jack and the Beanstalk.mp3" pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp "Jack and the Beanstalk.mp3" pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 ### Upload New Alarm Sound
 
 ```bash
-scp rooster-crowing.mp3 pi@rp4player.local:/home/pi/rp4player/media/alarms/
+scp rooster-crowing.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
 ```
 
 ### Batch Upload Multiple Stories
 
 ```bash
 cd ~/Downloads/stories
-scp *.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 ### Replace Existing File
 
 ```bash
 # Just upload with same name - it will auto-update
-scp three-little-pigs-new-version.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/three-little-pigs.mp3
+scp three-little-pigs-new-version.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/three-little-pigs.mp3
 ```
 
 ### Delete File
@@ -234,7 +234,7 @@ scp three-little-pigs-new-version.mp3 pi@rp4player.local:/home/pi/rp4player/medi
 ```bash
 # SSH into Pi and delete
 ssh pi@rp4player.local
-rm /home/pi/rp4player/media/stories/old-story.mp3
+rm /home/pi/src/rp4layer/media/stories/old-story.mp3
 exit
 # App will detect deletion within 60 seconds
 ```
@@ -243,37 +243,37 @@ exit
 
 ```bash
 # List all stories
-ssh pi@rp4player.local "ls -lh /home/pi/rp4player/media/stories/"
+ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/stories/"
 
 # List all alarms
-ssh pi@rp4player.local "ls -lh /home/pi/rp4player/media/alarms/"
+ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/alarms/"
 
 # Count files
-ssh pi@rp4player.local "ls /home/pi/rp4player/media/stories/ | wc -l"
+ssh pi@rp4player.local "ls /home/pi/src/rp4layer/media/stories/ | wc -l"
 ```
 
 ### Backup Media Library
 
 ```bash
 # Download all media to your computer
-rsync -av pi@rp4player.local:/home/pi/rp4player/media/ ~/rp4player-backup/
+rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/ ~/rp4player-backup/
 
 # Backup just stories
-rsync -av pi@rp4player.local:/home/pi/rp4player/media/stories/ ~/rp4player-backup/stories/
+rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/stories/ ~/rp4player-backup/stories/
 ```
 
 ### Restore Media Library
 
 ```bash
 # Upload your backup
-rsync -av ~/rp4player-backup/ pi@rp4player.local:/home/pi/rp4player/media/
+rsync -av ~/rp4player-backup/ pi@rp4player.local:/home/pi/src/rp4layer/media/
 ```
 
 ### Sync Folders (Keep Updated)
 
 ```bash
 # Keep local and remote in sync
-rsync -av --delete ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+rsync -av --delete ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ```
 
 The `--delete` flag removes files from Pi that don't exist locally.
@@ -299,10 +299,10 @@ ssh pi@192.168.1.100
 
 ```bash
 # Check directory permissions on Pi
-ssh pi@rp4player.local "ls -la /home/pi/rp4player/media/"
+ssh pi@rp4player.local "ls -la /home/pi/src/rp4layer/media/"
 
 # Fix if needed
-ssh pi@rp4player.local "chmod 755 /home/pi/rp4player/media/{alarms,stories}"
+ssh pi@rp4player.local "chmod 755 /home/pi/src/rp4layer/media/{alarms,stories}"
 ```
 
 ### Files Not Appearing in App
@@ -312,15 +312,15 @@ ssh pi@rp4player.local "chmod 755 /home/pi/rp4player/media/{alarms,stories}"
 3. **Check file location** - Must be in correct folder
 4. **Verify upload** - SSH in and check:
    ```bash
-   ssh pi@rp4player.local "ls -lh /home/pi/rp4player/media/stories/"
+   ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/stories/"
    ```
 5. **Check logs**:
    ```bash
-   ssh pi@rp4player.local "tail -50 /home/pi/rp4player/logs/app.log"
+   ssh pi@rp4player.local "tail -50 /home/pi/src/rp4layer/logs/app.log"
    ```
 6. **Manual scan** - Restart app:
    ```bash
-   ssh pi@rp4player.local "sudo systemctl restart rp4player"
+   ssh pi@rp4player.local "sudo systemctl restart getty@tty1"
    ```
 
 ### Hostname Not Resolving
@@ -335,7 +335,7 @@ If `rp4player.local` doesn't work:
 
 2. Use IP address directly:
    ```bash
-   scp story.mp3 pi@192.168.1.100:/home/pi/rp4player/media/stories/
+   scp story.mp3 pi@192.168.1.100:/home/pi/src/rp4layer/media/stories/
    ```
 
 3. Add to `/etc/hosts` (optional):
@@ -369,15 +369,15 @@ Add to `~/.bashrc` or `~/.zshrc`:
 # Quick aliases
 alias rp4-ssh="ssh pi@rp4player.local"
 alias rp4-stories="rsync -av --progress"
-alias rp4-backup="rsync -av pi@rp4player.local:/home/pi/rp4player/media/ ~/rp4-backup/"
+alias rp4-backup="rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/ ~/rp4-backup/"
 
 # Functions
 upload-story() {
-    scp "$1" pi@rp4player.local:/home/pi/rp4player/media/stories/
+    scp "$1" pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 }
 
 upload-alarm() {
-    scp "$1" pi@rp4player.local:/home/pi/rp4player/media/alarms/
+    scp "$1" pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
 }
 ```
 
@@ -396,7 +396,7 @@ Create cron job on your computer:
 crontab -e
 
 # Add line (syncs at 2 AM daily):
-0 2 * * * rsync -av ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/ >> ~/rp4-sync.log 2>&1
+0 2 * * * rsync -av ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/ >> ~/rp4-sync.log 2>&1
 ```
 
 ---
@@ -448,7 +448,7 @@ crontab -e
 │                                                  │
 │ Sync Directory:                                  │
 │ rsync -av ~/stories/ pi@rp4player.local:\       │
-│     /home/pi/rp4player/media/stories/            │
+│     /home/pi/src/rp4layer/media/stories/            │
 │                                                  │
 │ Backup:                                          │
 │ rsync -av pi@rp4player.local:/home/pi/\        │
@@ -461,6 +461,6 @@ crontab -e
 ---
 
 **Need Help?**
-- Check logs: `ssh pi@rp4player.local "tail -f /home/pi/rp4player/logs/app.log"`
-- Restart app: `ssh pi@rp4player.local "sudo systemctl restart rp4player"`
-- Full documentation: See `INSTALL_v2.md` and `TECHNICAL_SPECIFICATION_v2.md`
+- Check logs: `ssh pi@rp4player.local "tail -f /home/pi/src/rp4layer/logs/app.log"`
+- Restart kiosk: `ssh pi@rp4player.local "sudo systemctl restart getty@tty1"`
+- Full documentation: See `INSTALL.md` and `TECHNICAL_SPECIFICATION.md`
