@@ -33,7 +33,7 @@ with a 3.5" SPI LCD touchscreen in kiosk mode (no desktop environment required).
    - Click "Choose Storage" and select your microSD card
 
 3. **Configure Settings (⚙️ gear icon):**
-   - Set hostname: `rp4player`
+   - Set hostname: `picuentacuentos`
    - Enable SSH: ✓ (required for setup and troubleshooting)
    - Set username: `pi`
    - Set password: (your choice)
@@ -54,7 +54,7 @@ with a 3.5" SPI LCD touchscreen in kiosk mode (no desktop environment required).
 
 2. **SSH into the Pi** once it appears on the network:
    ```bash
-   ssh pi@rp4player.local
+   ssh pi@picuentacuentos.local
    # or use its IP address: ssh pi@192.168.x.x
    ```
 
@@ -110,7 +110,7 @@ sudo apt-get install -y \
 
 ```bash
 sudo mkdir -p /etc/X11/xorg.conf.d
-sudo cp /home/pi/src/rp4layer/config/etc/X11/xorg.conf.d/99-fbdev.conf \
+sudo cp /home/pi/picuentacuentos/config/etc/X11/xorg.conf.d/99-fbdev.conf \
         /etc/X11/xorg.conf.d/99-fbdev.conf
 ```
 
@@ -150,7 +150,7 @@ EndSection
 
 ```bash
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
-sudo cp /home/pi/src/rp4layer/config/etc/systemd/system/getty@tty1.service.d/autologin.conf \
+sudo cp /home/pi/picuentacuentos/config/etc/systemd/system/getty@tty1.service.d/autologin.conf \
         /etc/systemd/system/getty@tty1.service.d/autologin.conf
 ```
 
@@ -167,9 +167,9 @@ ExecStart=-/sbin/agetty --autologin pi --noclear %I $TERM
 ### 3d. Configure auto-start of X on login
 
 ```bash
-cp /home/pi/src/rp4layer/config/home/pi/.bash_profile /home/pi/.bash_profile
-cp /home/pi/src/rp4layer/config/home/pi/.xinitrc      /home/pi/.xinitrc
-cp /home/pi/src/rp4layer/config/home/pi/kiosk.conf    /home/pi/kiosk.conf
+cp /home/pi/picuentacuentos/config/home/pi/.bash_profile /home/pi/.bash_profile
+cp /home/pi/picuentacuentos/config/home/pi/.xinitrc      /home/pi/.xinitrc
+cp /home/pi/picuentacuentos/config/home/pi/kiosk.conf    /home/pi/kiosk.conf
 ```
 
 Boot sequence after this:
@@ -190,13 +190,13 @@ DISPLAY=:0 xeyes &                   # xeyes should appear on the LCD
 
 ---
 
-## Step 4: Install RP4 Player
+## Step 4: Install PiCuentaCuentos
 
 ```bash
 # Clone or copy the project
 cd /home/pi/src
-git clone https://github.com/yourusername/rp4layer.git
-cd rp4layer
+git clone https://github.com/eduhrami/picuentacuentos.git
+cd picuentacuentos
 
 # Create Python virtual environment and install dependencies
 python3 -m venv venv
@@ -211,7 +211,7 @@ pip install -r requirements.txt
 ### Directory structure:
 
 ```
-/home/pi/src/rp4layer/media/
+/home/pi/picuentacuentos/media/
 ├── alarms/
 │   ├── rooster.mp3
 │   └── gentle-bells.mp3
@@ -223,8 +223,8 @@ pip install -r requirements.txt
 ### Copy files:
 
 ```bash
-cp your-alarm.mp3  /home/pi/src/rp4layer/media/alarms/
-cp your-story.mp3  /home/pi/src/rp4layer/media/stories/
+cp your-alarm.mp3  /home/pi/picuentacuentos/media/alarms/
+cp your-story.mp3  /home/pi/picuentacuentos/media/stories/
 ```
 
 **Recommended MP3 format:** 128kbps+, 44.1kHz stereo
@@ -234,7 +234,7 @@ cp your-story.mp3  /home/pi/src/rp4layer/media/stories/
 
 ## Step 6: Configure the Kiosk App
 
-Edit `~/kiosk.conf` on the Pi to point to the RP4 Player:
+Edit `~/kiosk.conf` on the Pi to point to the PiCuentaCuentos:
 
 ```bash
 nano /home/pi/kiosk.conf
@@ -242,7 +242,7 @@ nano /home/pi/kiosk.conf
 
 Change `KIOSK_APP` to:
 ```bash
-KIOSK_APP="python3 /home/pi/src/rp4layer/main.py"
+KIOSK_APP="python3 /home/pi/picuentacuentos/main.py"
 KIOSK_DISPLAY=":0"
 ```
 
@@ -264,7 +264,7 @@ The app will appear on the LCD within a few seconds.
 ps aux | grep main.py | grep -v grep
 
 # Watch application logs
-tail -f /home/pi/src/rp4layer/logs/app.log
+tail -f /home/pi/picuentacuentos/logs/app.log
 ```
 
 ### On the LCD you should see:
@@ -373,7 +373,7 @@ cat ~/kiosk.conf
 ps aux | grep main.py | grep -v grep
 
 # Test manually on the X display
-DISPLAY=:0 python3 /home/pi/src/rp4layer/main.py
+DISPLAY=:0 python3 /home/pi/picuentacuentos/main.py
 
 # Revert to xeyes to confirm X itself is working
 nano ~/kiosk.conf   # set KIOSK_APP="xeyes -geometry 480x320+0+0"
@@ -391,7 +391,7 @@ aplay /usr/share/sounds/alsa/Front_Center.wav   # test
 ### Python package errors
 
 ```bash
-cd /home/pi/src/rp4layer
+cd /home/pi/picuentacuentos
 source venv/bin/activate
 pip install --upgrade -r requirements.txt
 ```
@@ -399,8 +399,8 @@ pip install --upgrade -r requirements.txt
 ### Reset to default settings
 
 ```bash
-rm /home/pi/src/rp4layer/data/alarms.json
-rm /home/pi/src/rp4layer/config/settings.json
+rm /home/pi/picuentacuentos/data/alarms.json
+rm /home/pi/picuentacuentos/config/settings.json
 sudo systemctl restart getty@tty1
 # files will be recreated with defaults on next start
 ```
@@ -422,7 +422,7 @@ sudo systemctl restart getty@tty1
 
 ### Adjust volume limits
 
-Edit `/home/pi/src/rp4layer/config/settings.json`:
+Edit `/home/pi/picuentacuentos/config/settings.json`:
 
 ```json
 {
@@ -481,7 +481,7 @@ aplay -l
 
 ```bash
 # Application log
-tail -f /home/pi/src/rp4layer/logs/app.log
+tail -f /home/pi/picuentacuentos/logs/app.log
 
 # X server startup log
 cat /tmp/x_startup.log

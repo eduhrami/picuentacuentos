@@ -115,9 +115,9 @@ done
 KIOSK_APP="xeyes -geometry 480x320+0+0"
 KIOSK_DISPLAY=":0"
 ```
-To switch to the RP4 player:
+To switch to the PiCuentaCuentos:
 ```bash
-KIOSK_APP="python3 /home/pi/src/rp4layer/main.py"
+KIOSK_APP="python3 /home/pi/picuentacuentos/main.py"
 ```
 Apply without rebooting:
 ```bash
@@ -165,7 +165,7 @@ cat /tmp/x_startup.log
 
 ---
 
-## Kivy / RP4 Player Notes
+## Kivy / PiCuentaCuentos Notes
 
 When running the Python app under X, set these before importing Kivy:
 ```python

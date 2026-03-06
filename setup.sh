@@ -15,12 +15,12 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Installation directory
-INSTALL_DIR="/home/pi/rp4player"
+INSTALL_DIR="/home/pi/picuentacuentos"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Print colored message
 print_msg() {
-    echo -e "${GREEN}[RP4Player]${NC} $1"
+    echo -e "${GREEN}[PiCuentaCuentos]${NC} $1"
 }
 
 print_error() {
@@ -126,7 +126,7 @@ configure_audio() {
         print_msg "Adding audio configuration to $CONFIG_FILE"
         sudo tee -a "$CONFIG_FILE" > /dev/null <<EOF
 
-# RP4 Player Audio Configuration
+# PiCuentaCuentos Audio Configuration
 dtparam=audio=on
 audio_pwm_mode=2
 disable_audio_dither=1
@@ -238,11 +238,11 @@ initialize_data() {
   },
   "usb": {
     "auto_sync": true,
-    "media_path": "/home/pi/rp4player/media"
+    "media_path": "/home/pi/picuentacuentos/media"
   },
   "system": {
     "log_level": "INFO",
-    "log_file": "/home/pi/rp4player/logs/app.log"
+    "log_file": "/home/pi/picuentacuentos/logs/app.log"
   }
 }
 EOF
@@ -333,7 +333,7 @@ EOF
 create_systemd_service() {
     print_step "Creating systemd service..."
 
-    sudo tee /etc/systemd/system/rp4player.service > /dev/null <<EOF
+    sudo tee /etc/systemd/system/picuentacuentos.service > /dev/null <<EOF
 [Unit]
 Description=RP4 Kids Audio Player
 After=sound.target network.target graphical.target
@@ -370,7 +370,7 @@ configure_autostart() {
     mkdir -p /home/pi/.config/autostart
 
     # Create desktop entry
-    cat > /home/pi/.config/autostart/rp4player.desktop <<EOF
+    cat > /home/pi/.config/autostart/picuentacuentos.desktop <<EOF
 [Desktop Entry]
 Type=Application
 Name=RP4 Kids Player
@@ -380,7 +380,7 @@ Terminal=false
 StartupNotify=false
 EOF
 
-    chmod +x /home/pi/.config/autostart/rp4player.desktop
+    chmod +x /home/pi/.config/autostart/picuentacuentos.desktop
 
     print_msg "Autostart configured ✓"
 }
@@ -399,7 +399,7 @@ disable_screen_blanking() {
     # Add screen blanking disable commands
     cat >> /home/pi/.config/lxsession/LXDE-pi/autostart <<'EOF'
 
-# Disable screen blanking for RP4 Player
+# Disable screen blanking for PiCuentaCuentos
 @xset s off
 @xset -dpms
 @xset s noblank
@@ -447,7 +447,7 @@ create_helper_scripts() {
     # Create start script
     cat > "$INSTALL_DIR/start.sh" <<'EOF'
 #!/bin/bash
-cd /home/pi/rp4player
+cd /home/pi/picuentacuentos
 source venv/bin/activate
 python app/main.py
 EOF
@@ -456,26 +456,26 @@ EOF
     # Create stop script
     cat > "$INSTALL_DIR/stop.sh" <<'EOF'
 #!/bin/bash
-pkill -f "python.*rp4player"
-sudo systemctl stop rp4player
+pkill -f "python.*picuentacuentos"
+sudo systemctl stop picuentacuentos
 EOF
     chmod +x "$INSTALL_DIR/stop.sh"
 
     # Create update script
     cat > "$INSTALL_DIR/update.sh" <<'EOF'
 #!/bin/bash
-cd /home/pi/rp4player
+cd /home/pi/picuentacuentos
 git pull
 source venv/bin/activate
 pip install -r requirements.txt --upgrade
-sudo systemctl restart rp4player
+sudo systemctl restart picuentacuentos
 EOF
     chmod +x "$INSTALL_DIR/update.sh"
 
     # Create backup script
     cat > "$INSTALL_DIR/backup.sh" <<'EOF'
 #!/bin/bash
-BACKUP_DIR="/home/pi/rp4player/data/backups"
+BACKUP_DIR="/home/pi/picuentacuentos/data/backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 mkdir -p "$BACKUP_DIR"
 
@@ -520,8 +520,8 @@ print_summary() {
     echo "   ./start.sh"
     echo
     echo "3. Enable auto-start on boot:"
-    echo "   sudo systemctl enable rp4player"
-    echo "   sudo systemctl start rp4player"
+    echo "   sudo systemctl enable picuentacuentos"
+    echo "   sudo systemctl start picuentacuentos"
     echo
     echo "4. View logs:"
     echo "   tail -f $INSTALL_DIR/logs/app.log"
@@ -536,9 +536,9 @@ print_summary() {
     echo "   ./update.sh  - Update application"
     echo
     echo -e "${YELLOW}Service Management:${NC}"
-    echo "   sudo systemctl status rp4player   - Check status"
-    echo "   sudo systemctl restart rp4player  - Restart"
-    echo "   sudo systemctl stop rp4player     - Stop"
+    echo "   sudo systemctl status picuentacuentos   - Check status"
+    echo "   sudo systemctl restart picuentacuentos  - Restart"
+    echo "   sudo systemctl stop picuentacuentos     - Stop"
     echo
 }
 
@@ -556,7 +556,7 @@ main() {
     check_user
     check_platform
 
-    print_warning "This script will install RP4 Player to: $INSTALL_DIR"
+    print_warning "This script will install PiCuentaCuentos to: $INSTALL_DIR"
     read -p "Continue? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then

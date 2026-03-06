@@ -10,7 +10,7 @@ Quick reference for uploading and managing media files on your RP4 Kids Audio Pl
 
 ```bash
 # Method 1: Use hostname
-ping rp4player.local
+ping picuentacuentos.local
 
 # Method 2: Check on the Pi itself
 # (Connect keyboard/monitor temporarily)
@@ -21,7 +21,7 @@ hostname -I
 
 ```bash
 # From your computer's terminal
-scp my-story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp my-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 **That's it!** The file will appear in the app within 60 seconds.
@@ -31,7 +31,7 @@ scp my-story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 ## Directory Structure
 
 ```
-/home/pi/src/rp4layer/media/
+/home/pi/picuentacuentos/media/
 ├── alarms/          ← Upload alarm sounds here (15-60 seconds)
 └── stories/         ← Upload bedtime stories here (5-30 minutes)
 ```
@@ -46,16 +46,16 @@ scp my-story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 ```bash
 # Single file
-scp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Multiple files from current directory
-scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Entire folder (preserves structure)
-scp -r my-stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp -r my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Sync with rsync (recommended for large libraries)
-rsync -av --progress ~/Music/Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+rsync -av --progress ~/Music/Stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 #### Windows (PowerShell)
@@ -65,10 +65,10 @@ rsync -av --progress ~/Music/Stories/ pi@rp4player.local:/home/pi/src/rp4layer/m
 # Already included in modern Windows
 
 # Upload file
-scp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Or use PSCP (PuTTY)
-pscp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+pscp story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ### 🖱️ GUI Clients
@@ -78,7 +78,7 @@ pscp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 1. **Download:** https://winscp.net/
 2. **Configure:**
    - File protocol: SFTP
-   - Host name: `rp4player.local`
+   - Host name: `picuentacuentos.local`
    - Port: 22
    - User name: `pi`
    - Password: [your pi password]
@@ -89,7 +89,7 @@ pscp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 1. **Download:** https://cyberduck.io/
 2. **Open Connection:**
    - Protocol: SFTP
-   - Server: `rp4player.local`
+   - Server: `picuentacuentos.local`
    - Port: 22
    - Username: `pi`
    - Password: [your pi password]
@@ -99,7 +99,7 @@ pscp story.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
 
 1. **Download:** https://filezilla-project.org/
 2. **Quick Connect:**
-   - Host: `sftp://rp4player.local`
+   - Host: `sftp://picuentacuentos.local`
    - Username: `pi`
    - Password: [your pi password]
    - Port: 22
@@ -113,7 +113,7 @@ Create `~/bin/upload-stories.sh`:
 #!/bin/bash
 # Quick media upload script
 
-PI_HOST="pi@rp4player.local"
+PI_HOST="pi@picuentacuentos.local"
 
 # Usage: ./upload-stories.sh <directory-path> <type>
 # Example: ./upload-stories.sh ~/Downloads/new-stories stories
@@ -131,7 +131,7 @@ if [[ "$MEDIA_TYPE" != "alarms" && "$MEDIA_TYPE" != "stories" ]]; then
     exit 1
 fi
 
-REMOTE_PATH="/home/pi/src/rp4layer/media/$MEDIA_TYPE/"
+REMOTE_PATH="/home/pi/picuentacuentos/media/$MEDIA_TYPE/"
 
 echo "📤 Uploading $LOCAL_PATH to $PI_HOST:$REMOTE_PATH"
 rsync -av --progress "$LOCAL_PATH/" "$PI_HOST:$REMOTE_PATH"
@@ -206,35 +206,35 @@ The app will display:
 ### Upload New Story
 
 ```bash
-scp "Jack and the Beanstalk.mp3" pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp "Jack and the Beanstalk.mp3" pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ### Upload New Alarm Sound
 
 ```bash
-scp rooster-crowing.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
+scp rooster-crowing.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
 ```
 
 ### Batch Upload Multiple Stories
 
 ```bash
 cd ~/Downloads/stories
-scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ### Replace Existing File
 
 ```bash
 # Just upload with same name - it will auto-update
-scp three-little-pigs-new-version.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/three-little-pigs.mp3
+scp three-little-pigs-new-version.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/three-little-pigs.mp3
 ```
 
 ### Delete File
 
 ```bash
 # SSH into Pi and delete
-ssh pi@rp4player.local
-rm /home/pi/src/rp4layer/media/stories/old-story.mp3
+ssh pi@picuentacuentos.local
+rm /home/pi/picuentacuentos/media/stories/old-story.mp3
 exit
 # App will detect deletion within 60 seconds
 ```
@@ -243,37 +243,37 @@ exit
 
 ```bash
 # List all stories
-ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/stories/"
+ssh pi@picuentacuentos.local "ls -lh /home/pi/picuentacuentos/media/stories/"
 
 # List all alarms
-ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/alarms/"
+ssh pi@picuentacuentos.local "ls -lh /home/pi/picuentacuentos/media/alarms/"
 
 # Count files
-ssh pi@rp4player.local "ls /home/pi/src/rp4layer/media/stories/ | wc -l"
+ssh pi@picuentacuentos.local "ls /home/pi/picuentacuentos/media/stories/ | wc -l"
 ```
 
 ### Backup Media Library
 
 ```bash
 # Download all media to your computer
-rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/ ~/rp4player-backup/
+rsync -av pi@picuentacuentos.local:/home/pi/picuentacuentos/media/ ~/picuentacuentos-backup/
 
 # Backup just stories
-rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/stories/ ~/rp4player-backup/stories/
+rsync -av pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/ ~/picuentacuentos-backup/stories/
 ```
 
 ### Restore Media Library
 
 ```bash
 # Upload your backup
-rsync -av ~/rp4player-backup/ pi@rp4player.local:/home/pi/src/rp4layer/media/
+rsync -av ~/picuentacuentos-backup/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/
 ```
 
 ### Sync Folders (Keep Updated)
 
 ```bash
 # Keep local and remote in sync
-rsync -av --delete ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+rsync -av --delete ~/Music/Kids-Stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 The `--delete` flag removes files from Pi that don't exist locally.
@@ -286,10 +286,10 @@ The `--delete` flag removes files from Pi that don't exist locally.
 
 ```bash
 # Check if Pi is online
-ping rp4player.local
+ping picuentacuentos.local
 
 # Check if SSH is running on Pi
-ssh pi@rp4player.local "systemctl status ssh"
+ssh pi@picuentacuentos.local "systemctl status ssh"
 
 # Try IP address instead of hostname
 ssh pi@192.168.1.100
@@ -299,10 +299,10 @@ ssh pi@192.168.1.100
 
 ```bash
 # Check directory permissions on Pi
-ssh pi@rp4player.local "ls -la /home/pi/src/rp4layer/media/"
+ssh pi@picuentacuentos.local "ls -la /home/pi/picuentacuentos/media/"
 
 # Fix if needed
-ssh pi@rp4player.local "chmod 755 /home/pi/src/rp4layer/media/{alarms,stories}"
+ssh pi@picuentacuentos.local "chmod 755 /home/pi/picuentacuentos/media/{alarms,stories}"
 ```
 
 ### Files Not Appearing in App
@@ -312,20 +312,20 @@ ssh pi@rp4player.local "chmod 755 /home/pi/src/rp4layer/media/{alarms,stories}"
 3. **Check file location** - Must be in correct folder
 4. **Verify upload** - SSH in and check:
    ```bash
-   ssh pi@rp4player.local "ls -lh /home/pi/src/rp4layer/media/stories/"
+   ssh pi@picuentacuentos.local "ls -lh /home/pi/picuentacuentos/media/stories/"
    ```
 5. **Check logs**:
    ```bash
-   ssh pi@rp4player.local "tail -50 /home/pi/src/rp4layer/logs/app.log"
+   ssh pi@picuentacuentos.local "tail -50 /home/pi/picuentacuentos/logs/app.log"
    ```
 6. **Manual scan** - Restart app:
    ```bash
-   ssh pi@rp4player.local "sudo systemctl restart getty@tty1"
+   ssh pi@picuentacuentos.local "sudo systemctl restart getty@tty1"
    ```
 
 ### Hostname Not Resolving
 
-If `rp4player.local` doesn't work:
+If `picuentacuentos.local` doesn't work:
 
 1. Find IP address:
    ```bash
@@ -335,13 +335,13 @@ If `rp4player.local` doesn't work:
 
 2. Use IP address directly:
    ```bash
-   scp story.mp3 pi@192.168.1.100:/home/pi/src/rp4layer/media/stories/
+   scp story.mp3 pi@192.168.1.100:/home/pi/picuentacuentos/media/stories/
    ```
 
 3. Add to `/etc/hosts` (optional):
    ```bash
    # Add line:
-   192.168.1.100  rp4player.local
+   192.168.1.100  picuentacuentos.local
    ```
 
 ---
@@ -352,13 +352,13 @@ If `rp4player.local` doesn't work:
 
 ```bash
 # On your computer
-ssh-keygen -t ed25519 -C "rp4player-access"
+ssh-keygen -t ed25519 -C "picuentacuentos-access"
 
 # Copy key to Pi
-ssh-copy-id pi@rp4player.local
+ssh-copy-id pi@picuentacuentos.local
 
 # Test
-ssh pi@rp4player.local  # Should login without password
+ssh pi@picuentacuentos.local  # Should login without password
 ```
 
 ### Create Alias for Quick Access
@@ -367,17 +367,17 @@ Add to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 # Quick aliases
-alias rp4-ssh="ssh pi@rp4player.local"
+alias rp4-ssh="ssh pi@picuentacuentos.local"
 alias rp4-stories="rsync -av --progress"
-alias rp4-backup="rsync -av pi@rp4player.local:/home/pi/src/rp4layer/media/ ~/rp4-backup/"
+alias rp4-backup="rsync -av pi@picuentacuentos.local:/home/pi/picuentacuentos/media/ ~/rp4-backup/"
 
 # Functions
 upload-story() {
-    scp "$1" pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+    scp "$1" pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 }
 
 upload-alarm() {
-    scp "$1" pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
+    scp "$1" pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
 }
 ```
 
@@ -396,7 +396,7 @@ Create cron job on your computer:
 crontab -e
 
 # Add line (syncs at 2 AM daily):
-0 2 * * * rsync -av ~/Music/Kids-Stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/ >> ~/rp4-sync.log 2>&1
+0 2 * * * rsync -av ~/Music/Kids-Stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/ >> ~/rp4-sync.log 2>&1
 ```
 
 ---
@@ -432,27 +432,27 @@ crontab -e
 
 ```
 ┌─────────────────────────────────────────────────┐
-│         RP4 Player - Media Upload Cheat Sheet    │
+│         PiCuentaCuentos - Media Upload Cheat Sheet    │
 ├─────────────────────────────────────────────────┤
 │ Upload Story:                                    │
-│ scp story.mp3 pi@rp4player.local:/home/pi/\    │
-│     rp4player/media/stories/                     │
+│ scp story.mp3 pi@picuentacuentos.local:/home/pi/\    │
+│     picuentacuentos/media/stories/                     │
 │                                                  │
 │ Upload Alarm:                                    │
-│ scp alarm.mp3 pi@rp4player.local:/home/pi/\    │
-│     rp4player/media/alarms/                      │
+│ scp alarm.mp3 pi@picuentacuentos.local:/home/pi/\    │
+│     picuentacuentos/media/alarms/                      │
 │                                                  │
 │ Batch Upload:                                    │
-│ scp *.mp3 pi@rp4player.local:/home/pi/\        │
-│     rp4player/media/stories/                     │
+│ scp *.mp3 pi@picuentacuentos.local:/home/pi/\        │
+│     picuentacuentos/media/stories/                     │
 │                                                  │
 │ Sync Directory:                                  │
-│ rsync -av ~/stories/ pi@rp4player.local:\       │
-│     /home/pi/src/rp4layer/media/stories/            │
+│ rsync -av ~/stories/ pi@picuentacuentos.local:\       │
+│     /home/pi/picuentacuentos/media/stories/            │
 │                                                  │
 │ Backup:                                          │
-│ rsync -av pi@rp4player.local:/home/pi/\        │
-│     rp4player/media/ ~/backup/                   │
+│ rsync -av pi@picuentacuentos.local:/home/pi/\        │
+│     picuentacuentos/media/ ~/backup/                   │
 │                                                  │
 │ Files appear in app: < 60 seconds               │
 └─────────────────────────────────────────────────┘
@@ -461,6 +461,6 @@ crontab -e
 ---
 
 **Need Help?**
-- Check logs: `ssh pi@rp4player.local "tail -f /home/pi/src/rp4layer/logs/app.log"`
-- Restart kiosk: `ssh pi@rp4player.local "sudo systemctl restart getty@tty1"`
+- Check logs: `ssh pi@picuentacuentos.local "tail -f /home/pi/picuentacuentos/logs/app.log"`
+- Restart kiosk: `ssh pi@picuentacuentos.local "sudo systemctl restart getty@tty1"`
 - Full documentation: See `INSTALL.md` and `TECHNICAL_SPECIFICATION.md`

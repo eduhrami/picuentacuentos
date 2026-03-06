@@ -68,8 +68,8 @@ Use [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to flash **Rasp
 
 ```bash
 cd /home/pi
-git clone https://github.com/yourusername/rp4layer.git
-cd rp4layer
+git clone https://github.com/eduhrami/picuentacuentos.git
+cd picuentacuentos
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -80,10 +80,10 @@ From your computer:
 
 ```bash
 # Upload a bedtime story
-scp my-story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp my-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Upload an alarm sound
-scp alarm-sound.mp3 pi@rp4player.local:/home/pi/rp4player/media/alarms/
+scp alarm-sound.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
 ```
 
 ### 4. Start Using!
@@ -98,13 +98,13 @@ Files appear in the app within 60 seconds. No restart needed!
 
 ```bash
 # Single file
-scp story.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Multiple files
-scp *.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Sync entire folder
-rsync -av ~/my-stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
+rsync -av ~/my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ### GUI Clients
@@ -114,11 +114,11 @@ rsync -av ~/my-stories/ pi@rp4player.local:/home/pi/rp4player/media/stories/
 - **All Platforms:** [FileZilla](https://filezilla-project.org/)
 
 **Connection Details:**
-- Host: `rp4player.local`
+- Host: `picuentacuentos.local`
 - Port: 22 (SFTP/SSH)
 - Username: `pi`
 - Password: [your password]
-- Path: `/home/pi/rp4player/media/`
+- Path: `/home/pi/picuentacuentos/media/`
 
 See [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for complete guide.
 
@@ -151,7 +151,7 @@ See [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for complete guide.
 ## 📁 Project Structure
 
 ```
-rp4layer/
+picuentacuentos/
 ├── app/                      # Application source code
 │   ├── core/                # Core components (event bus, state)
 │   ├── models/              # Data models
@@ -176,7 +176,7 @@ rp4layer/
 
 ## ⚙️ Configuration
 
-Edit `/home/pi/rp4player/config/settings.json`:
+Edit `/home/pi/picuentacuentos/config/settings.json`:
 
 ```json
 {
@@ -213,10 +213,10 @@ Edit `/home/pi/rp4player/config/settings.json`:
 sudo systemctl restart getty@tty1
 
 # View logs
-tail -f /home/pi/src/rp4layer/logs/app.log
+tail -f /home/pi/picuentacuentos/logs/app.log
 
 # Backup configuration
-cd /home/pi/src/rp4layer && ./backup.sh
+cd /home/pi/picuentacuentos && ./backup.sh
 
 # Check what is running on the display
 ps aux | grep -E "Xorg|startx|main.py" | grep -v grep
@@ -247,7 +247,7 @@ Screens included:
 
 ```bash
 # Run unit tests
-cd /home/pi/rp4player
+cd /home/pi/picuentacuentos
 source venv/bin/activate
 pytest tests/
 
@@ -255,7 +255,7 @@ pytest tests/
 aplay /usr/share/sounds/alsa/Front_Center.wav
 
 # Test SSH upload
-scp test.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
+scp test.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ---
@@ -266,13 +266,13 @@ scp test.mp3 pi@rp4player.local:/home/pi/rp4player/media/stories/
 
 ```bash
 # Check SSH is running
-ssh pi@rp4player.local "systemctl status ssh"
+ssh pi@picuentacuentos.local "systemctl status ssh"
 
 # Test connection
-ssh pi@rp4player.local
+ssh pi@picuentacuentos.local
 
 # Check network
-ping rp4player.local
+ping picuentacuentos.local
 ```
 
 ### Files Not Appearing
@@ -281,25 +281,25 @@ ping rp4player.local
 2. Check file is .mp3 format
 3. Verify upload succeeded:
    ```bash
-   ssh pi@rp4player.local "ls -l /home/pi/rp4player/media/stories/"
+   ssh pi@picuentacuentos.local "ls -l /home/pi/picuentacuentos/media/stories/"
    ```
 4. Check logs:
    ```bash
-   ssh pi@rp4player.local "tail -f /home/pi/rp4player/logs/app.log"
+   ssh pi@picuentacuentos.local "tail -f /home/pi/picuentacuentos/logs/app.log"
    ```
 5. Restart app:
    ```bash
-   ssh pi@rp4player.local "sudo systemctl restart rp4player"
+   ssh pi@picuentacuentos.local "sudo systemctl restart picuentacuentos"
    ```
 
 ### No Audio Output
 
 ```bash
 # Force 3.5mm output
-ssh pi@rp4player.local "amixer cset numid=3 1"
+ssh pi@picuentacuentos.local "amixer cset numid=3 1"
 
 # Test audio
-ssh pi@rp4player.local "speaker-test -t wav -c 2"
+ssh pi@picuentacuentos.local "speaker-test -t wav -c 2"
 ```
 
 ---
@@ -421,7 +421,7 @@ Made with ❤️ for family use.
 For issues and questions:
 
 1. Check [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for upload help
-2. Review logs: `ssh pi@rp4player.local "tail -f /home/pi/rp4player/logs/app.log"`
+2. Review logs: `ssh pi@picuentacuentos.local "tail -f /home/pi/picuentacuentos/logs/app.log"`
 3. See [Troubleshooting](#-troubleshooting) section above
 4. Check [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) for migration info
 

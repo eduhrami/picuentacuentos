@@ -143,7 +143,7 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Main Process: rp4player                                │
+│  Main Process: picuentacuentos                                │
 │                                                          │
 │  ┌────────────────────┐  ┌──────────────────────────┐  │
 │  │  Thread 1:         │  │  Thread 2:               │  │
@@ -428,7 +428,7 @@ class EventType(Enum):
 
 ### 5.1 Database Schema (SQLite)
 
-**File:** `/home/pi/src/rp4layer/data/rp4player.db`
+**File:** `/home/pi/picuentacuentos/data/picuentacuentos.db`
 
 ```sql
 -- Alarms Table
@@ -483,7 +483,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 
 ### 5.2 Configuration Files
 
-**File:** `/home/pi/src/rp4layer/config/settings.json`
+**File:** `/home/pi/picuentacuentos/config/settings.json`
 
 ```json
 {
@@ -510,11 +510,11 @@ CREATE INDEX idx_media_type ON media_files(file_type);
   },
   "usb": {
     "auto_sync": true,
-    "media_path": "/home/pi/src/rp4layer/media"
+    "media_path": "/home/pi/picuentacuentos/media"
   },
   "system": {
     "log_level": "INFO",
-    "log_file": "/home/pi/src/rp4layer/logs/app.log"
+    "log_file": "/home/pi/picuentacuentos/logs/app.log"
   }
 }
 ```
@@ -522,7 +522,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 ### 5.3 File System Structure
 
 ```
-/home/pi/src/rp4layer/
+/home/pi/picuentacuentos/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                    # Application entry point
@@ -569,7 +569,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │   └── settings.json              # Configuration file
 │
 ├── data/
-│   ├── rp4player.db              # SQLite database
+│   ├── picuentacuentos.db              # SQLite database
 │   └── backups/                  # DB backups
 │
 ├── media/
@@ -850,7 +850,7 @@ def set_app_volume(level: float):
 
 **Read-Only Root Filesystem:**
 - Enable overlayfs to prevent SD card corruption
-- Mount `/home/pi/src/rp4layer/data` as read-write
+- Mount `/home/pi/picuentacuentos/data` as read-write
 - Regular database backups to USB
 
 **File Validation:**
@@ -912,7 +912,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('/home/pi/src/rp4layer/logs/app.log'),
+        logging.FileHandler('/home/pi/picuentacuentos/logs/app.log'),
         logging.StreamHandler()
     ]
 )
@@ -973,8 +973,8 @@ sudo apt-get install -y \
 sudo amixer cset numid=3 1
 
 # Create application directory
-mkdir -p /home/pi/src/rp4layer
-cd /home/pi/src/rp4layer
+mkdir -p /home/pi/picuentacuentos
+cd /home/pi/picuentacuentos
 
 # Create virtual environment
 python3 -m venv venv
@@ -998,7 +998,7 @@ chmod +x app/main.py
 
 # Configure kiosk app launch (app starts via X session, not as a service)
 # Edit ~/kiosk.conf on the Pi to point to the app:
-#   KIOSK_APP="python3 /home/pi/src/rp4layer/app/main.py"
+#   KIOSK_APP="python3 /home/pi/picuentacuentos/app/main.py"
 # Then restart the X session:
 #   sudo systemctl restart getty@tty1
 # See docs/DISPLAY_SETUP.md for full kiosk configuration.
@@ -1051,7 +1051,7 @@ DISPLAY=:0 xinput_calibrator
 
 **Application Updates:**
 ```bash
-cd /home/pi/src/rp4layer
+cd /home/pi/picuentacuentos
 git pull origin main
 source venv/bin/activate
 pip install -r requirements.txt

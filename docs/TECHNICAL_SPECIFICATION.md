@@ -65,7 +65,7 @@ openssh-server
 ### 2.1 Directory Layout
 
 ```
-/home/pi/src/rp4layer/
+/home/pi/picuentacuentos/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                      # Application entry point
@@ -174,7 +174,7 @@ openssh-server
 
 ```
 main.py
-  ├── ui.app.RP4PlayerApp
+  ├── ui.app.PiCuentaCuentosApp
   │   ├── ui.screen_manager.ScreenManager
   │   │   └── ui.screens.*
   │   └── ui.widgets.*
@@ -238,12 +238,12 @@ class StorySettings:
 class MediaSettings:
     auto_scan: bool = True
     scan_interval_seconds: int = 60
-    media_path: str = "/home/pi/src/rp4layer/media"
+    media_path: str = "/home/pi/picuentacuentos/media"
 
 @dataclass
 class SystemSettings:
     log_level: str = "INFO"
-    log_file: str = "/home/pi/src/rp4layer/logs/app.log"
+    log_file: str = "/home/pi/picuentacuentos/logs/app.log"
 
 @dataclass
 class Settings:
@@ -307,11 +307,11 @@ class Settings:
   "media": {
     "auto_scan": true,
     "scan_interval_seconds": 60,
-    "media_path": "/home/pi/src/rp4layer/media"
+    "media_path": "/home/pi/picuentacuentos/media"
   },
   "system": {
     "log_level": "INFO",
-    "log_file": "/home/pi/src/rp4layer/logs/app.log"
+    "log_file": "/home/pi/picuentacuentos/logs/app.log"
   }
 }
 ```
@@ -598,32 +598,32 @@ Port 22
 
 ```bash
 # Single file
-scp alarm-sound.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/alarms/
+scp alarm-sound.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
 
 # Multiple files
-scp *.mp3 pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Entire directory
-scp -r my-stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+scp -r my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 **From Windows:**
 
 Using WinSCP or FileZilla:
-- Host: rp4player.local (or IP address)
+- Host: picuentacuentos.local (or IP address)
 - Port: 22
 - Username: pi
 - Password: [your password]
-- Remote path: /home/pi/src/rp4layer/media/
+- Remote path: /home/pi/picuentacuentos/media/
 
 **Using rsync (recommended for large collections):**
 
 ```bash
 # Sync entire media library
-rsync -av --progress /local/media/ pi@rp4player.local:/home/pi/src/rp4layer/media/
+rsync -av --progress /local/media/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/
 
 # Sync only stories
-rsync -av --progress /local/stories/ pi@rp4player.local:/home/pi/src/rp4layer/media/stories/
+rsync -av --progress /local/stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 ### 9.3 Media File Guidelines
@@ -669,7 +669,7 @@ The application automatically detects new files via:
 #!/bin/bash
 # upload-media.sh
 
-PI_HOST="pi@rp4player.local"
+PI_HOST="pi@picuentacuentos.local"
 LOCAL_DIR="$1"
 REMOTE_TYPE="$2"  # "alarms" or "stories"
 
@@ -678,7 +678,7 @@ if [ -z "$LOCAL_DIR" ] || [ -z "$REMOTE_TYPE" ]; then
     exit 1
 fi
 
-REMOTE_DIR="/home/pi/src/rp4layer/media/$REMOTE_TYPE/"
+REMOTE_DIR="/home/pi/picuentacuentos/media/$REMOTE_TYPE/"
 
 echo "Uploading $LOCAL_DIR to $PI_HOST:$REMOTE_DIR"
 rsync -av --progress "$LOCAL_DIR/" "$PI_HOST:$REMOTE_DIR"
