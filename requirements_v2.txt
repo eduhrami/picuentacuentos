@@ -1,0 +1,30 @@
+# RP4 Kids Audio Player - Python Dependencies
+# For Raspberry Pi OS (64-bit)
+# Version 2.0 - SSH-based media management
+
+# Cython (required for Kivy)
+Cython==0.29.36
+
+# UI Framework
+kivy==2.2.1
+
+# Audio playback
+pygame==2.5.2
+
+# Task scheduling
+APScheduler==3.10.4
+
+# File system monitoring
+watchdog==3.0.0
+
+# MP3 metadata reading
+mutagen==1.47.0
+
+# Date/time utilities
+python-dateutil==2.8.2
+
+# Additional dependencies for Kivy
+Pillow>=10.0.0
+docutils
+pygments
+kivy-garden>=0.1.5

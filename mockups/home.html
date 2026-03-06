@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=480, initial-scale=1.0">
+    <title>RP4 Player - Home Screen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .device {
+            width: 480px;
+            height: 320px;
+            background: #F5F5F5;
+            border: 8px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .time {
+            font-size: 32px;
+            font-weight: bold;
+            color: #212121;
+        }
+
+        .date {
+            font-size: 18px;
+            color: #757575;
+        }
+
+        .next-alarm {
+            text-align: center;
+            padding: 8px;
+            background: #FFF3E0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #E65100;
+            font-size: 16px;
+        }
+
+        .main-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+            margin-bottom: 15px;
+        }
+
+        .icon-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .icon-button:active {
+            transform: scale(0.95);
+        }
+
+        .icon-button.alarm {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .icon-button.story {
+            background: linear-gradient(135deg, #50C878 0%, #3DA75F 100%);
+            box-shadow: 0 4px 12px rgba(80, 200, 120, 0.4);
+        }
+
+        .icon {
+            font-size: 64px;
+        }
+
+        .settings-button {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 20px;
+            color: #757575;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .settings-button:active {
+            background: #F5F5F5;
+            transform: scale(0.98);
+        }
+
+        /* Navigation bar */
+        .nav-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #BDBDBD;
+        }
+
+        .nav-dot.active {
+            background: #4A90E2;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="device">
+        <div class="screen">
+            <div class="header">
+                <div>
+                    <div class="time" id="time">7:35 AM</div>
+                    <div class="date" id="date">Wed, Mar 5</div>
+                </div>
+            </div>
+
+            <div class="next-alarm">
+                ⏰ Next Alarm: Tomorrow 6:30 AM
+            </div>
+
+            <div class="main-buttons">
+                <a href="alarm_list.html">
+                    <button class="icon-button alarm">
+                        <div class="icon">🔔</div>
+                        <div>Alarms</div>
+                    </button>
+                </a>
+
+                <a href="story_player.html">
+                    <button class="icon-button story">
+                        <div class="icon">📖</div>
+                        <div>Stories</div>
+                    </button>
+                </a>
+            </div>
+
+            <a href="settings.html">
+                <button class="settings-button">
+                    <span style="font-size: 24px">⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </a>
+        </div>
+
+        <div class="nav-bar">
+            <div class="nav-dot active"></div>
+            <div class="nav-dot"></div>
+            <div class="nav-dot"></div>
+            <div class="nav-dot"></div>
+        </div>
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

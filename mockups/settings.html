@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=480, initial-scale=1.0">
+    <title>RP4 Player - Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .device {
+            width: 480px;
+            height: 320px;
+            background: #F5F5F5;
+            border: 8px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #757575;
+            cursor: pointer;
+            padding: 5px 15px;
+            margin-right: 10px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212121;
+            flex: 1;
+            text-align: center;
+            margin-right: 50px;
+        }
+
+        .settings-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .settings-item {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #F5F5F5;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .settings-icon {
+            font-size: 24px;
+            width: 32px;
+        }
+
+        .settings-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            color: #212121;
+            font-weight: 500;
+        }
+
+        .settings-subtitle {
+            font-size: 12px;
+            color: #757575;
+            margin-top: 2px;
+        }
+
+        .settings-value {
+            font-size: 14px;
+            color: #757575;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: #BDBDBD;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #50C878;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+
+        .brightness-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brightness-slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: #E0E0E0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .brightness-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #757575;
+            cursor: pointer;
+        }
+
+        .brightness-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #757575;
+            cursor: pointer;
+            border: none;
+        }
+
+        .version-info {
+            text-align: center;
+            padding: 15px;
+            color: #BDBDBD;
+            font-size: 12px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="device">
+        <div class="screen">
+            <div class="header">
+                <a href="home.html">
+                    <button class="back-button">← Back</button>
+                </a>
+                <div class="title">SETTINGS</div>
+            </div>
+
+            <div class="settings-list">
+                <div class="settings-section">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🔊</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Master Volume</div>
+                                <div class="settings-subtitle">System audio level</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="brightness-control">
+                                <input type="range" class="brightness-slider" min="0" max="100" value="75">
+                                <span>75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🔇</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Volume Limit</div>
+                                <div class="settings-subtitle">Protect hearing</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">☀️</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Screen Brightness</div>
+                                <div class="settings-subtitle">Display backlight</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="brightness-control">
+                                <input type="range" class="brightness-slider" min="0" max="100" value="80">
+                                <span>80%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">🌙</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Auto-Dim</div>
+                                <div class="settings-subtitle">After 30 seconds</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">💾</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Auto USB Sync</div>
+                                <div class="settings-subtitle">Import media automatically</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">📖</div>
+                            <div class="settings-text">
+                                <div class="settings-title">Resume Playback</div>
+                                <div class="settings-subtitle">Continue where you left off</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <div class="settings-icon">ℹ️</div>
+                            <div class="settings-text">
+                                <div class="settings-title">About</div>
+                                <div class="settings-subtitle">System information</div>
+                            </div>
+                        </div>
+                        <div class="settings-value">
+                            v1.0.0 →
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="version-info">
+                RP4 Kids Player • Version 1.0.0<br>
+                © 2026 • Made with ❤️
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle switches
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Sliders
+        document.querySelectorAll('.brightness-slider').forEach(slider => {
+            const valueLabel = slider.nextElementSibling;
+            slider.addEventListener('input', function() {
+                valueLabel.textContent = this.value + '%';
+            });
+        });
+    </script>
+</body>
+</html>

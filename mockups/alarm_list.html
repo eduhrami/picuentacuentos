@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=480, initial-scale=1.0">
+    <title>RP4 Player - Alarms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .device {
+            width: 480px;
+            height: 320px;
+            background: #F5F5F5;
+            border: 8px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 5px 15px;
+            margin-right: 10px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212121;
+            flex: 1;
+            text-align: center;
+            margin-right: 50px;
+        }
+
+        .alarm-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .alarm-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .alarm-card:active {
+            transform: scale(0.98);
+        }
+
+        .alarm-info {
+            flex: 1;
+        }
+
+        .alarm-time {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 5px;
+        }
+
+        .alarm-details {
+            font-size: 14px;
+            color: #757575;
+            line-height: 1.4;
+        }
+
+        .alarm-toggle {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: #BDBDBD;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .alarm-toggle.active {
+            background: #50C878;
+        }
+
+        .alarm-toggle::after {
+            content: '';
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .alarm-toggle.active::after {
+            transform: translateX(28px);
+        }
+
+        .add-button {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .add-button:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="device">
+        <div class="screen">
+            <div class="header">
+                <a href="home.html">
+                    <button class="back-button">← Back</button>
+                </a>
+                <div class="title">ALARMS</div>
+            </div>
+
+            <div class="alarm-list">
+                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
+                    <div class="alarm-info">
+                        <div class="alarm-time">🌅 6:30 AM</div>
+                        <div class="alarm-details">
+                            Mon, Tue, Wed, Thu, Fri<br>
+                            🔊 Rooster Sound
+                        </div>
+                    </div>
+                    <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+                </div>
+
+                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
+                    <div class="alarm-info">
+                        <div class="alarm-time">🌙 9:00 PM</div>
+                        <div class="alarm-details">
+                            Every Day<br>
+                            🔊 Gentle Bells
+                        </div>
+                    </div>
+                    <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+                </div>
+
+                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
+                    <div class="alarm-info">
+                        <div class="alarm-time">☀️ 8:00 AM</div>
+                        <div class="alarm-details">
+                            Sat, Sun<br>
+                            🔊 Birds Chirping
+                        </div>
+                    </div>
+                    <div class="alarm-toggle" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+                </div>
+            </div>
+
+            <a href="alarm_edit.html">
+                <button class="add-button">+ Add New Alarm</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
