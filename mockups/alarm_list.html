@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=480, initial-scale=1.0">
-    <title>RP4 Player - Alarms</title>
+    <title>PiCuentaCuentos - Alarms</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,21 @@
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             overflow: hidden;
+            position: relative;
+        }
+
+        .wallpaper {
+            position: absolute;
+            inset: 0;
+            background: url("../media/wallpapers/default.png") center/cover no-repeat;
+            z-index: 0;
+        }
+
+        .wallpaper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(245, 245, 245, 0.4);
         }
 
         .screen {
@@ -36,14 +51,17 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
             display: flex;
             align-items: center;
             padding: 15px;
-            background: white;
+            background: rgba(255, 255, 255, 0.92);
             border-bottom: 1px solid #E0E0E0;
+            backdrop-filter: blur(4px);
         }
 
         .back-button {
@@ -62,7 +80,18 @@
             color: #212121;
             flex: 1;
             text-align: center;
-            margin-right: 50px;
+        }
+
+        .add-header {
+            background: #4A90E2;
+            border: none;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.35);
         }
 
         .alarm-list {
@@ -72,7 +101,7 @@
         }
 
         .alarm-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
@@ -136,26 +165,6 @@
             transform: translateX(28px);
         }
 
-        .add-button {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 15px 40px;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
-            transition: transform 0.2s;
-        }
-
-        .add-button:active {
-            transform: translateX(-50%) scale(0.95);
-        }
 
         a {
             color: inherit;
@@ -165,52 +174,53 @@
 </head>
 <body>
     <div class="device">
+        <div class="wallpaper"></div>
         <div class="screen">
             <div class="header">
                 <a href="home.html">
                     <button class="back-button">← Back</button>
                 </a>
                 <div class="title">ALARMS</div>
+                <a href="alarm_time.html">
+                    <button class="add-header">+ Add</button>
+                </a>
             </div>
 
-            <div class="alarm-list">
-                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
-                    <div class="alarm-info">
-                        <div class="alarm-time">🌅 6:30 AM</div>
-                        <div class="alarm-details">
-                            Mon, Tue, Wed, Thu, Fri<br>
-                            🔊 Rooster Sound
+                <div class="alarm-list">
+                    <div class="alarm-card" onclick="window.location.href='alarm_time.html'">
+                        <div class="alarm-info">
+                            <div class="alarm-time">🌅 6:30 AM</div>
+                            <div class="alarm-details">
+                                Mon, Tue, Wed, Thu, Fri<br>
+                                🔊 Gallo
+                            </div>
                         </div>
+                        <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
                     </div>
-                    <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+
+                    <div class="alarm-card" onclick="window.location.href='alarm_time.html'">
+                        <div class="alarm-info">
+                            <div class="alarm-time">🌙 9:00 PM</div>
+                            <div class="alarm-details">
+                                Every Day<br>
+                                🔊 Campanitas
+                            </div>
+                        </div>
+                        <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+                    </div>
+
+                    <div class="alarm-card" onclick="window.location.href='alarm_time.html'">
+                        <div class="alarm-info">
+                            <div class="alarm-time">☀️ 8:00 AM</div>
+                            <div class="alarm-details">
+                                Sat, Sun<br>
+                                🔊 Pajaritos
+                            </div>
+                        </div>
+                        <div class="alarm-toggle" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
+                    </div>
                 </div>
 
-                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
-                    <div class="alarm-info">
-                        <div class="alarm-time">🌙 9:00 PM</div>
-                        <div class="alarm-details">
-                            Every Day<br>
-                            🔊 Gentle Bells
-                        </div>
-                    </div>
-                    <div class="alarm-toggle active" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
-                </div>
-
-                <div class="alarm-card" onclick="window.location.href='alarm_edit.html'">
-                    <div class="alarm-info">
-                        <div class="alarm-time">☀️ 8:00 AM</div>
-                        <div class="alarm-details">
-                            Sat, Sun<br>
-                            🔊 Birds Chirping
-                        </div>
-                    </div>
-                    <div class="alarm-toggle" onclick="event.stopPropagation(); this.classList.toggle('active')"></div>
-                </div>
-            </div>
-
-            <a href="alarm_edit.html">
-                <button class="add-button">+ Add New Alarm</button>
-            </a>
         </div>
     </div>
 </body>

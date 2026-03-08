@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=480, initial-scale=1.0">
-    <title>RP4 Player - Edit Alarm</title>
+    <title>PiCuentaCuentos - Alarm Time</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,21 @@
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             overflow: hidden;
+            position: relative;
+        }
+
+        .wallpaper {
+            position: absolute;
+            inset: 0;
+            background: url("../media/wallpapers/default.png") center/cover no-repeat;
+            z-index: 0;
+        }
+
+        .wallpaper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(245, 245, 245, 0.4);
         }
 
         .screen {
@@ -36,6 +51,8 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -43,11 +60,12 @@
             align-items: center;
             justify-content: space-between;
             padding: 15px;
-            background: white;
+            background: rgba(255, 255, 255, 0.92);
             border-bottom: 1px solid #E0E0E0;
+            backdrop-filter: blur(4px);
         }
 
-        .back-button, .save-button {
+        .back-button, .next-button {
             background: none;
             border: none;
             font-size: 18px;
@@ -59,7 +77,7 @@
             color: #4A90E2;
         }
 
-        .save-button {
+        .next-button {
             color: #50C878;
             font-weight: bold;
         }
@@ -77,10 +95,10 @@
         }
 
         .time-picker {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 16px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -99,8 +117,8 @@
             border: none;
             border-radius: 8px;
             width: 50px;
-            height: 40px;
-            font-size: 24px;
+            height: 36px;
+            font-size: 22px;
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -110,7 +128,7 @@
         }
 
         .time-value {
-            font-size: 42px;
+            font-size: 40px;
             font-weight: bold;
             color: #212121;
             width: 70px;
@@ -118,7 +136,7 @@
         }
 
         .time-separator {
-            font-size: 42px;
+            font-size: 40px;
             font-weight: bold;
             color: #212121;
             margin: 0 5px;
@@ -129,18 +147,48 @@
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 20px;
+            padding: 10px 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             margin-left: 10px;
         }
 
         .section {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .sound-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sound-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(80, 200, 120, 0.15);
+            color: #2f6b4a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .sound-button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .section-title {
@@ -152,14 +200,14 @@
 
         .day-selector {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
         .day-button {
             flex: 1;
-            min-width: 50px;
-            padding: 12px 8px;
+            min-width: 52px;
+            padding: 10px 8px;
             background: #F5F5F5;
             border: 2px solid #E0E0E0;
             border-radius: 8px;
@@ -175,54 +223,6 @@
             border-color: #4A90E2;
         }
 
-        .sound-select {
-            width: 100%;
-            padding: 12px;
-            background: #F5F5F5;
-            border: 2px solid #E0E0E0;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .volume-slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: #E0E0E0;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #4A90E2;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .volume-slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #4A90E2;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .volume-label {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 14px;
-            color: #757575;
-        }
-
         a {
             color: inherit;
             text-decoration: none;
@@ -231,14 +231,15 @@
 </head>
 <body>
     <div class="device">
+        <div class="wallpaper"></div>
         <div class="screen">
             <div class="header">
                 <a href="alarm_list.html">
                     <button class="back-button">Cancel</button>
                 </a>
-                <div class="title">Edit Alarm</div>
-                <a href="alarm_list.html">
-                    <button class="save-button">Save</button>
+                <div class="title">Alarm Time</div>
+                <a href="alarm_sound.html">
+                    <button class="next-button">Next</button>
                 </a>
             </div>
 
@@ -258,51 +259,39 @@
                     <button class="ampm-toggle" id="ampm">AM</button>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">Repeat</div>
-                    <div class="day-selector">
-                        <button class="day-button active">Mon</button>
-                        <button class="day-button active">Tue</button>
-                        <button class="day-button active">Wed</button>
-                        <button class="day-button active">Thu</button>
-                        <button class="day-button active">Fri</button>
-                        <button class="day-button">Sat</button>
-                        <button class="day-button">Sun</button>
-                    </div>
+            <div class="section">
+                <div class="section-title">Repeat</div>
+                <div class="day-selector">
+                    <button class="day-button active">Mon</button>
+                    <button class="day-button active">Tue</button>
+                    <button class="day-button active">Wed</button>
+                    <button class="day-button active">Thu</button>
+                    <button class="day-button active">Fri</button>
+                    <button class="day-button">Sat</button>
+                    <button class="day-button">Sun</button>
                 </div>
+            </div>
 
-                <div class="section">
-                    <div class="section-title">Alarm Sound</div>
-                    <select class="sound-select">
-                        <option>🐓 Rooster Sound</option>
-                        <option>🔔 Gentle Bells</option>
-                        <option>🐦 Birds Chirping</option>
-                        <option>🎵 Chimes</option>
-                        <option>🌊 Ocean Waves</option>
-                    </select>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">Volume</div>
-                    <input type="range" class="volume-slider" min="0" max="100" value="80">
-                    <div class="volume-label">
-                        <span>🔇 Quiet</span>
-                        <span>🔊 Loud</span>
-                    </div>
+            <div class="section">
+                <div class="section-title">Sound</div>
+                <div class="sound-row">
+                    <div class="sound-pill">🐓 Gallo</div>
+                    <a href="alarm_sound.html">
+                        <button class="sound-button">Change</button>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <script>
-        // Day button toggle
         document.querySelectorAll('.day-button').forEach(btn => {
             btn.addEventListener('click', () => {
                 btn.classList.toggle('active');
             });
         });
 
-        // AM/PM toggle
         document.getElementById('ampm').addEventListener('click', function() {
             this.textContent = this.textContent === 'AM' ? 'PM' : 'AM';
         });

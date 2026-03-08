@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=480, initial-scale=1.0">
-    <title>RP4 Player - Home Screen</title>
+    <title>PiCuentaCuentos - Home Screen</title>
     <style>
         * {
             margin: 0;
@@ -32,48 +32,70 @@
             position: relative;
         }
 
+        .wallpaper {
+            position: absolute;
+            inset: 0;
+            background: url("../media/wallpapers/default.png") center/cover no-repeat;
+            z-index: 0;
+        }
+
+        .wallpaper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(245, 245, 245, 0.4);
+        }
+
         .screen {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         .time {
-            font-size: 32px;
-            font-weight: bold;
-            color: #212121;
+            font-size: 54px;
+            font-weight: 800;
+            color: #1f1f1f;
+            letter-spacing: 1px;
+            text-align: center;
         }
 
         .date {
             font-size: 18px;
-            color: #757575;
+            color: #5f5f5f;
         }
 
         .next-alarm {
             text-align: center;
-            padding: 8px;
-            background: #FFF3E0;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 8px 16px;
+            background: rgba(255, 243, 224, 0.92);
+            border-radius: 999px;
+            margin: 0 auto 15px;
             color: #E65100;
             font-size: 16px;
+            width: fit-content;
         }
 
         .main-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
             flex: 1;
-            margin-bottom: 15px;
+            margin: 0 auto 10px;
+            width: 100%;
+            max-width: 320px;
         }
 
         .icon-button {
@@ -86,10 +108,11 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            min-height: 90px;
         }
 
         .icon-button:active {
@@ -107,27 +130,11 @@
         }
 
         .icon {
-            font-size: 64px;
+            font-size: 48px;
         }
 
         .settings-button {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 20px;
-            color: #757575;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .settings-button:active {
-            background: #F5F5F5;
-            transform: scale(0.98);
+            display: none;
         }
 
         /* Navigation bar */
@@ -161,40 +168,33 @@
 </head>
 <body>
     <div class="device">
+        <div class="wallpaper"></div>
         <div class="screen">
             <div class="header">
                 <div>
-                    <div class="time" id="time">7:35 AM</div>
-                    <div class="date" id="date">Wed, Mar 5</div>
+                    <div class="time" id="time">07:35</div>
+                    <div class="date" id="date">Mié, 5 Mar</div>
                 </div>
             </div>
 
             <div class="next-alarm">
-                ⏰ Next Alarm: Tomorrow 6:30 AM
+                ⏰ Proxima alarma: 6:30 AM
             </div>
 
             <div class="main-buttons">
+                <a href="story_list.html">
+                    <button class="icon-button story">
+                        <div class="icon">📖</div>
+                    </button>
+                </a>
+
                 <a href="alarm_list.html">
                     <button class="icon-button alarm">
                         <div class="icon">🔔</div>
-                        <div>Alarms</div>
                     </button>
                 </a>
 
-                <a href="story_player.html">
-                    <button class="icon-button story">
-                        <div class="icon">📖</div>
-                        <div>Stories</div>
-                    </button>
-                </a>
             </div>
-
-            <a href="settings.html">
-                <button class="settings-button">
-                    <span style="font-size: 24px">⚙️</span>
-                    <span>Settings</span>
-                </button>
-            </a>
         </div>
 
         <div class="nav-bar">
@@ -209,12 +209,12 @@
         // Update time
         function updateTime() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', {
-                hour: 'numeric',
+            const timeStr = now.toLocaleTimeString('es-MX', {
+                hour: '2-digit',
                 minute: '2-digit',
-                hour12: true
+                hour12: false
             });
-            const dateStr = now.toLocaleDateString('en-US', {
+            const dateStr = now.toLocaleDateString('es-MX', {
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric'

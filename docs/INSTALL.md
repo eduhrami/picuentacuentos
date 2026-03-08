@@ -327,8 +327,7 @@ amixer cset numid=3 1
 # Test audio
 speaker-test -t wav -c 2
 
-# Adjust volume
-alsamixer
+# Adjust volume using your external speaker controls
 ```
 
 ### Touchscreen calibration (if touches seem off):
@@ -492,19 +491,9 @@ ssh pi@192.168.100.150 "
 
 ## Advanced Configuration
 
-### Adjust volume limits
+### Audio output
 
-Edit `/home/pi/picuentacuentos/config/settings.json`:
-
-```json
-{
-  "audio": {
-    "default_volume": 0.7,
-    "alarm_volume": 0.8,
-    "max_volume": 0.85
-  }
-}
-```
+Volume is controlled by the external speaker hardware.
 
 ### Change sleep timer default
 
@@ -527,15 +516,9 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
 }
 ```
 
-### Set wallpaper
+### Wallpaper
 
-```json
-{
-  "display": {
-    "wallpaper_path": "/home/pi/picuentacuentos/wallpapers/default.png"
-  }
-}
-```
+Wallpaper is fixed at `/home/pi/picuentacuentos/media/wallpapers/default.png`.
 
 ---
 

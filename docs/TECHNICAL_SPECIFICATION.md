@@ -49,7 +49,7 @@ Alarms
 - FR-ALARM-004: Each alarm SHALL allow selecting one MP3 sound for the alarm.
 - FR-ALARM-005: Alarm playback SHALL loop until stopped or max duration is reached.
 - FR-ALARM-006: Each alarm SHALL have an enabled or disabled state.
-- FR-ALARM-007: Each alarm SHALL support a per-alarm volume setting.
+- FR-ALARM-007: Alarm volume is controlled externally via the speaker hardware.
 - FR-ALARM-008: Alarm snooze SHOULD be supported with 5 to 10 minute interval.
 - FR-ALARM-009: If an alarm triggers while a story is playing, story playback SHALL pause.
 - FR-ALARM-010: Alarm time and day selection SHALL be edited separately from alarm sound selection.
@@ -60,6 +60,9 @@ Stories
 - FR-STORY-003: The system SHALL allow next and previous within a collection.
 - FR-STORY-004: The system SHALL provide a sleep timer with presets 10, 20, 30, 45, 60 minutes.
 - FR-STORY-005: The system SHALL stop playback when the sleep timer elapses.
+- FR-STORY-006: The primary story control button SHALL toggle between Play and Pause based on playback state.
+- FR-STORY-007: The story list SHALL be a separate screen from the player.
+- FR-STORY-008: Each story SHALL have an image used in the list and player screens.
 
 Media install and catalogs
 - FR-MEDIA-001: The system SHALL load media catalogs from JSON files at startup.
@@ -71,8 +74,7 @@ User interface
 - FR-UI-001: All features SHALL be operable via touch only.
 - FR-UI-002: The home screen SHALL show current time and day.
 - FR-UI-003: The system SHALL provide dedicated screens for alarms and stories.
-- FR-UI-004: The system SHALL provide a settings screen.
-- FR-UI-005: The system SHALL allow selecting a wallpaper via a JSON-configured path.
+- FR-UI-004: The system SHALL use a fixed wallpaper image from /home/pi/picuentacuentos/media/wallpapers/default.png.
 
 System behavior
 - FR-SYS-001: The app SHALL auto-start at boot in full-screen mode.
@@ -93,25 +95,25 @@ System behavior
   - /home/pi/picuentacuentos/media/stories: story files and optional icons
   - /home/pi/picuentacuentos/media/animal_sounds/sounds.json: alarm catalog
   - /home/pi/picuentacuentos/media/stories/stories.json: story catalog
-  - /home/pi/picuentacuentos/wallpapers/default.png: default wallpaper
+  - /home/pi/picuentacuentos/media/wallpapers/default.png: default wallpaper
 - File types: MP3 only in v2.0.
 - Display name: from JSON catalog (label/title).
 
 ### 0.6 UI Structure and Flows
 
 Screens
-- HomeScreen: time and day, buttons for Alarms, Stories, Settings
-- AlarmListScreen: list alarms with time and enabled toggle, add alarm button
+- HomeScreen: time and day, icon-only buttons for Stories and Alarms
+- AlarmListScreen: list alarms with time and enabled toggle, add button in header
 - AlarmTimeScreen: time selector, day toggles, save or delete
-- AlarmSoundScreen: sound picker from sounds.json, volume slider
+- AlarmSoundScreen: sound picker from sounds.json
 - StoryLibraryScreen: list stories by folder, tap to open NowPlayingScreen
-- NowPlayingScreen: title, play or pause, next or previous, sleep timer button
+- StoryLibraryScreen: list stories with cover images, tap to open NowPlayingScreen
+- NowPlayingScreen: title, story image, play or pause (toggle label/icon), next or previous, sleep timer button
 - AlarmRingingScreen: stop and snooze buttons
-- SettingsScreen: time set, max volume, brightness
 
 Primary flows
 - Alarm setup: Home -> Alarms -> Add Alarm -> Set time and days -> Next -> Choose sound -> Save
-- Story playback: Home -> Stories -> Select Story -> Play -> Sleep Timer optional
+- Story playback: Home -> Stories -> Story List -> Select Story -> Play -> Sleep Timer optional
 - Media update: Upload MP3s via SSH -> update JSON catalogs -> restart app
 
 ### 0.7 Out of Scope v2.0
@@ -210,8 +212,8 @@ openssh-server
 │   │   │   ├── alarm_time.py       # Alarm time editor
 │   │   │   ├── alarm_sound.py      # Alarm sound picker
 │   │   │   ├── story_player.py     # Story player screen
-│   │   │   ├── alarm_trigger.py    # Active alarm screen
-│   │   │   └── settings.py         # Settings screen
+│   │   │   ├── story_list.py       # Story list screen
+│   │   │   └── alarm_trigger.py    # Active alarm screen
 │   │   │
 │   │   └── widgets/
 │   │       ├── __init__.py
@@ -219,7 +221,6 @@ openssh-server
 │   │       ├── story_card.py       # Story list item
 │   │       ├── time_picker.py      # Time selection widget
 │   │       ├── day_selector.py     # Day of week selector
-│   │       └── volume_slider.py    # Volume control
 │   │
 │   └── utils/
 │       ├── __init__.py
@@ -377,9 +378,6 @@ from typing import Dict, Any
 @dataclass
 class AudioSettings:
     output_device: str = "hw:0,0"
-    default_volume: float = 0.7
-    alarm_volume: float = 0.8
-    max_volume: float = 1.0
 
 @dataclass
 class DisplaySettings:
@@ -387,7 +385,6 @@ class DisplaySettings:
     auto_dim_timeout: int = 30
     dim_brightness: int = 20
     orientation: int = 0
-    wallpaper_path: str = "/home/pi/picuentacuentos/wallpapers/default.png"
 
 @dataclass
 class AlarmSettings:
@@ -449,17 +446,13 @@ class Settings:
 ```json
 {
   "audio": {
-    "output_device": "hw:0,0",
-    "default_volume": 0.7,
-    "alarm_volume": 0.8,
-    "max_volume": 1.0
+    "output_device": "hw:0,0"
   },
   "display": {
     "brightness": 80,
     "auto_dim_timeout": 30,
     "dim_brightness": 20,
-    "orientation": 0,
-    "wallpaper_path": "/home/pi/picuentacuentos/wallpapers/default.png"
+    "orientation": 0
   },
   "alarms": {
     "snooze_duration_minutes": 5,
@@ -582,7 +575,6 @@ class EventType:
     # System events
     SLEEP_TIMER_STARTED = "system.sleep_timer_started"
     SLEEP_TIMER_EXPIRED = "system.sleep_timer_expired"
-    VOLUME_CHANGED = "system.volume_changed"
 ```
 
 ---

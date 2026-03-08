@@ -24,7 +24,7 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Browse and play MP3 story files
 - Sleep timer with auto-stop
 - Resume playback from last position
-- Simple playback controls (play, pause, skip)
+- Simple playback controls (play/pause toggle, skip)
 
 ### 🌐 SSH Media Management (NEW!)
 - Upload media files from any computer on your network
@@ -39,7 +39,7 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Simple navigation (2-3 levels max)
 - Emoji icons for easy recognition
 - 480×320 pixel display optimized
-- Configurable wallpaper via `config/settings.json`
+- Fixed wallpaper from `/home/pi/picuentacuentos/media/wallpapers/default.png`
 
 ---
 
@@ -184,9 +184,7 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
 ```json
 {
   "audio": {
-    "default_volume": 0.7,
-    "alarm_volume": 0.8,
-    "max_volume": 0.85
+    "output_device": "hw:0,0"
   },
   "display": {
     "brightness": 80,
@@ -307,7 +305,7 @@ ssh pi@picuentacuentos.local "aplay -l"
 # Test audio output (no -D flag needed — asound.conf routes to jack)
 ssh pi@picuentacuentos.local "aplay /usr/share/sounds/alsa/Front_Center.wav"
 
-# Adjust volume (card 1)
+# Select audio output device (card 1)
 ssh pi@picuentacuentos.local "amixer -c 1 sset PCM 85%"
 ```
 
@@ -388,7 +386,6 @@ See [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) for implementation 
 ### Version 2.1 (Planned)
 - [ ] Web-based upload interface
 - [ ] Multiple user profiles
-- [ ] Volume fade-in for alarms
 - [ ] Playlist management
 
 ### Version 3.0 (Future)

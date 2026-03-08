@@ -241,11 +241,10 @@ class UIManager:
 ```python
 class AudioEngine:
     def __init__(self, output_device: str = "hw:0,0")
-    def play(self, file_path: str, volume: float = 0.7) -> None
+    def play(self, file_path: str) -> None
     def stop(self) -> None
     def pause(self) -> None
     def resume(self) -> None
-    def set_volume(self, level: float) -> None  # 0.0 to 1.0
     def get_duration(self, file_path: str) -> float
     def get_current_position(self) -> float
     def seek(self, position: float) -> None
@@ -295,7 +294,6 @@ class Alarm:
     minute: int  # 0-59
     days: List[str]  # ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
     sound_file: str
-    volume: float  # 0.0 to 1.0
     label: str
     snooze_enabled: bool
     auto_dismiss_minutes: int  # Default: 10
@@ -341,7 +339,6 @@ AppState = {
     "current_story": Optional[Story],
     "sleep_timer_active": bool,
     "sleep_timer_remaining": int,  # seconds
-    "volume": float,
     "media_loaded": bool,
 }
 ```
@@ -379,7 +376,6 @@ class EventType(Enum):
 
     # System events
     SLEEP_TIMER_EXPIRED = "system.sleep_timer_expired"
-    VOLUME_CHANGED = "system.volume_changed"
 ```
 
 ---
@@ -399,7 +395,6 @@ CREATE TABLE alarms (
     minute INTEGER NOT NULL CHECK(minute >= 0 AND minute < 60),
     days TEXT NOT NULL,  -- JSON array: ["mon","tue","wed"]
     sound_file TEXT NOT NULL,
-    volume REAL NOT NULL DEFAULT 0.7 CHECK(volume >= 0.0 AND volume <= 1.0),
     label TEXT,
     snooze_enabled BOOLEAN DEFAULT 1,
     auto_dismiss_minutes INTEGER DEFAULT 10,
@@ -447,10 +442,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 ```json
 {
   "audio": {
-    "output_device": "hw:0,0",
-    "default_volume": 0.7,
-    "alarm_volume": 0.8,
-    "max_volume": 1.0
+    "output_device": "hw:0,0"
   },
   "display": {
     "brightness": 80,
@@ -669,9 +661,9 @@ SPACING = {
 │     ⏮️         ⏯️         ⏭️            │ <- Controls
 │   Previous    Play      Next           │
 │                                        │
-│  ┌─────────────────┐  ┌────────────┐  │
-│  │  🔊 Volume: 75% │  │  ⏲️ Timer  │  │
-│  └─────────────────┘  └────────────┘  │
+│  ┌────────────┐                       │
+│  │  ⏲️ Timer  │                       │
+│  └────────────┘                       │
 │                                        │
 │  Story List: ▼                         │
 │  • The Three Little Pigs (playing)     │
@@ -756,21 +748,7 @@ pygame.mixer.init(
 ```
 
 **Volume Control:**
-```python
-# System volume (ALSA)
-import subprocess
-
-def set_system_volume(percent: int):
-    """Set system volume via amixer"""
-    subprocess.run([
-        'amixer', 'sset', 'PCM', f'{percent}%'
-    ])
-
-# Application volume (pygame)
-def set_app_volume(level: float):
-    """Set application volume (0.0 to 1.0)"""
-    pygame.mixer.music.set_volume(level)
-```
+- Volume is controlled by external speaker hardware.
 
 **Audio File Support:**
 - Primary: MP3 (MPEG-1 Audio Layer III)
@@ -799,9 +777,8 @@ def set_app_volume(level: float):
    pygame.mixer.music.play()
    ```
 
-3. Volume range test (0%, 50%, 100%)
-4. Long playback test (30 min file)
-5. Interrupt handling test (alarm over story)
+3. Long playback test (30 min file)
+4. Interrupt handling test (alarm over story)
 
 ---
 
@@ -840,16 +817,7 @@ def validate_media_file(file_path: str) -> bool:
 **Parental Lock (Future):**
 - PIN-protected settings screen
 - Restrict alarm deletion
-- Prevent volume exceeding safe levels (85dB)
-
-**Volume Limiting:**
-```python
-MAX_SAFE_VOLUME = 0.85  # 85% maximum
-
-def set_volume_safe(level: float):
-    capped_volume = min(level, MAX_SAFE_VOLUME)
-    audio_engine.set_volume(capped_volume)
-```
+- External speakers provide their own volume limiting.
 
 **Screen Time Management:**
 - Auto-sleep display after inactivity
@@ -1047,11 +1015,6 @@ def test_audio_playback():
     engine.stop()
     assert not engine.is_playing()
 
-def test_volume_control():
-    engine = AudioEngine()
-    engine.set_volume(0.5)
-    assert engine.get_volume() == 0.5
-
 # tests/test_alarms.py
 def test_alarm_creation():
     scheduler = AlarmScheduler(mock_db, mock_audio)
@@ -1082,7 +1045,7 @@ def test_alarm_trigger():
 - [ ] Display renders correctly (no artifacts)
 - [ ] Touch input responsive (<200ms)
 - [ ] Audio output clear through 3.5mm jack
-- [ ] Volume control functional (0-100%)
+- [ ] External speaker volume adjusted to safe level
 - [ ] Media catalogs load successfully on startup
 - [ ] System boots to app automatically
 - [ ] No audio dropouts during playback
@@ -1098,8 +1061,7 @@ def test_alarm_trigger():
   1. Set a new alarm
   2. Turn alarm on/off
   3. Browse and play a story
-  4. Adjust volume
-  5. Stop story playback
+  4. Stop story playback
 
 **Success Criteria:**
 - 90%+ task completion without adult help
