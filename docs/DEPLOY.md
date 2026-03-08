@@ -1,9 +1,9 @@
 # PiCuentaCuentos - Deployment Guide
 
-**Target device:** `cuentacuentos` — Raspberry Pi 4, IP `192.168.100.150`
+**Target device:** `picuentacuentos` — Raspberry Pi 4, IP `192.168.100.150`
 **SSH user:** `pi`
-**App path on Pi:** `/home/pi/src/rp4layer/`
-**Dev machine source:** `/home/tozanni/src/rp4layer/`
+**App path on Pi:** `/home/pi/picuentacuentos/`
+**Dev machine source:** `/home/tozanni/src/picuentacuentos/`
 
 All commands below run from the **dev machine** unless otherwise noted.
 
@@ -30,15 +30,15 @@ Expected: `/dev/fb1` listed and an Xorg process running on `:0`.
 ### 1. Create the directory on the Pi
 
 ```bash
-ssh pi@192.168.100.150 'mkdir -p /home/pi/src/rp4layer'
+ssh pi@192.168.100.150 'mkdir -p /home/pi/picuentacuentos'
 ```
 
 ### 2. Sync all project files to the Pi
 
 ```bash
 rsync -avz --exclude='venv/' --exclude='data/' --exclude='.git/' \
-    /home/tozanni/src/rp4layer/ \
-    pi@192.168.100.150:/home/pi/src/rp4layer/
+    /home/tozanni/src/picuentacuentos/ \
+    pi@192.168.100.150:/home/pi/picuentacuentos/
 ```
 
 ### 3. Install system dependencies (on the Pi)
@@ -54,7 +54,7 @@ ssh pi@192.168.100.150 'sudo apt-get update && sudo apt-get install -y \
 
 ```bash
 ssh pi@192.168.100.150 '
-    cd /home/pi/src/rp4layer
+    cd /home/pi/picuentacuentos
     python3 -m venv venv
     source venv/bin/activate
     pip install --upgrade pip setuptools wheel
@@ -71,20 +71,20 @@ These files are already synced in step 2 under `config/`. Copy them into place:
 ```bash
 ssh pi@192.168.100.150 '
     # X server: use /dev/fb1 at 480x320 16-bit
-    sudo cp /home/pi/src/rp4layer/config/etc/X11/xorg.conf.d/99-fbdev.conf \
+    sudo cp /home/pi/picuentacuentos/config/etc/X11/xorg.conf.d/99-fbdev.conf \
             /etc/X11/xorg.conf.d/99-fbdev.conf
 
     # ALSA: route audio to 3.5mm analog jack (card 1)
-    sudo cp /home/pi/src/rp4layer/config/etc/asound.conf /etc/asound.conf
+    sudo cp /home/pi/picuentacuentos/config/etc/asound.conf /etc/asound.conf
 
     # Autologin for user pi on tty1
     sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
-    sudo cp /home/pi/src/rp4layer/config/etc/systemd/system/getty@tty1.service.d/autologin.conf \
+    sudo cp /home/pi/picuentacuentos/config/etc/systemd/system/getty@tty1.service.d/autologin.conf \
             /etc/systemd/system/getty@tty1.service.d/autologin.conf
 
     # Shell startup: auto-launch X on tty1
-    cp /home/pi/src/rp4layer/config/home/pi/.bash_profile /home/pi/.bash_profile
-    cp /home/pi/src/rp4layer/config/home/pi/.xinitrc      /home/pi/.xinitrc
+    cp /home/pi/picuentacuentos/config/home/pi/.bash_profile /home/pi/.bash_profile
+    cp /home/pi/picuentacuentos/config/home/pi/.xinitrc      /home/pi/.xinitrc
 '
 ```
 
@@ -92,7 +92,7 @@ ssh pi@192.168.100.150 '
 
 ```bash
 ssh pi@192.168.100.150 '
-    cd /home/pi/src/rp4layer
+    cd /home/pi/picuentacuentos
     mkdir -p data/backups logs media/animal_sounds media/stories
 
     # Default alarm store (only if it does not already exist)
@@ -107,10 +107,10 @@ ssh pi@192.168.100.150 '
   "alarms": { "snooze_duration_minutes": 5, "auto_dismiss_minutes": 10, "max_alarms": 5 },
   "stories": { "default_sleep_timer_minutes": 30, "resume_playback": true },
   "media": {
-    "sounds_config": "/home/pi/src/rp4layer/media/animal_sounds/sounds.json",
-    "stories_config": "/home/pi/src/rp4layer/media/stories/stories.json"
+    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   },
-  "system": { "log_level": "INFO", "log_file": "/home/pi/src/rp4layer/logs/app.log" }
+  "system": { "log_level": "INFO", "log_file": "/home/pi/picuentacuentos/logs/app.log" }
 }
 EOF
     fi
@@ -121,7 +121,7 @@ EOF
 
 ```bash
 ssh pi@192.168.100.150 "cat > /home/pi/kiosk.conf <<'EOF'
-KIOSK_APP=\"/home/pi/src/rp4layer/venv/bin/python /home/pi/src/rp4layer/app/main.py\"
+KIOSK_APP=\"/home/pi/picuentacuentos/venv/bin/python /home/pi/picuentacuentos/app/main.py\"
 KIOSK_DISPLAY=\":0\"
 EOF"
 ```
@@ -143,12 +143,12 @@ Use the `deploy-to-pi` skill for the standard workflow, or run manually:
 ```bash
 # 1. Sync updated code (excludes venv, media, and user data)
 rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
-    /home/tozanni/src/rp4layer/ \
-    pi@192.168.100.150:/home/pi/src/rp4layer/
+    /home/tozanni/src/picuentacuentos/ \
+    pi@192.168.100.150:/home/pi/picuentacuentos/
 
 # 2. Update Python dependencies if requirements.txt changed
 ssh pi@192.168.100.150 '
-    cd /home/pi/src/rp4layer
+    cd /home/pi/picuentacuentos
     source venv/bin/activate
     pip install -q -r requirements.txt
 '
@@ -168,19 +168,19 @@ See `docs/MEDIA_MANAGEMENT.md` for the full catalogue format.
 
 ```bash
 # A new story (MP3 required, PNG icon optional)
-scp my-story.mp3 pi@192.168.100.150:/home/pi/src/rp4layer/media/stories/
-scp my-story-icon.png pi@192.168.100.150:/home/pi/src/rp4layer/media/stories/
+scp my-story.mp3 pi@192.168.100.150:/home/pi/picuentacuentos/media/stories/
+scp my-story-icon.png pi@192.168.100.150:/home/pi/picuentacuentos/media/stories/
 
 # A new animal sound (both MP3 and PNG required)
-scp frog.mp3 frog.png pi@192.168.100.150:/home/pi/src/rp4layer/media/animal_sounds/
+scp frog.mp3 frog.png pi@192.168.100.150:/home/pi/picuentacuentos/media/animal_sounds/
 ```
 
 ### Update the catalogue on the Pi
 
 ```bash
-ssh pi@192.168.100.150 'nano /home/pi/src/rp4layer/media/stories/stories.json'
+ssh pi@192.168.100.150 'nano /home/pi/picuentacuentos/media/stories/stories.json'
 # or
-ssh pi@192.168.100.150 'nano /home/pi/src/rp4layer/media/animal_sounds/sounds.json'
+ssh pi@192.168.100.150 'nano /home/pi/picuentacuentos/media/animal_sounds/sounds.json'
 ```
 
 ### Restart to reload
@@ -201,7 +201,7 @@ ssh pi@192.168.100.150 'ps aux | grep main.py | grep -v grep'
 ssh pi@192.168.100.150 'ps aux | grep Xorg | grep -v grep'
 
 # Tail the application log
-ssh pi@192.168.100.150 'tail -f /home/pi/src/rp4layer/logs/app.log'
+ssh pi@192.168.100.150 'tail -f /home/pi/picuentacuentos/logs/app.log'
 
 # Test audio output
 ssh pi@192.168.100.150 'aplay /usr/share/sounds/alsa/Front_Center.wav'
@@ -219,10 +219,10 @@ re-sync from a known good state on the dev machine:
 
 ```bash
 # Hard-reset dev working tree to last commit, then re-deploy
-git -C /home/tozanni/src/rp4layer checkout .
+git -C /home/tozanni/src/picuentacuentos checkout .
 rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
-    /home/tozanni/src/rp4layer/ \
-    pi@192.168.100.150:/home/pi/src/rp4layer/
+    /home/tozanni/src/picuentacuentos/ \
+    pi@192.168.100.150:/home/pi/picuentacuentos/
 ssh pi@192.168.100.150 'sudo systemctl restart getty@tty1'
 ```
 
@@ -243,7 +243,7 @@ ssh pi@192.168.100.150 "
 |---------|---------|
 | Black LCD after restart | `ssh pi@192.168.100.150 'cat /tmp/x_startup.log'` |
 | App not appearing on LCD | `ssh pi@192.168.100.150 'cat ~/kiosk.conf'` — verify KIOSK_APP path |
-| Python import errors | `ssh pi@192.168.100.150 'cd /home/pi/src/rp4layer && source venv/bin/activate && python app/main.py'` |
+| Python import errors | `ssh pi@192.168.100.150 'cd /home/pi/picuentacuentos && source venv/bin/activate && python app/main.py'` |
 | No audio | `ssh pi@192.168.100.150 'aplay -l'` — card 1 (Headphones) must be listed |
 | Touch not responding | `ssh pi@192.168.100.150 'ls /dev/input/event4'` — ADS7846 must be present |
 
