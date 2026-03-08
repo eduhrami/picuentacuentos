@@ -38,7 +38,7 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 - System boot time < 30 seconds
 - Alarm accuracy within ±5 seconds
 - Zero missed alarms due to system failures
-- Child-operable without adult assistance
+- Child-operable without adult assistance; media updates handled via PC commands
 - Media updates via SSH only (secure, administrator-controlled)
 
 ---

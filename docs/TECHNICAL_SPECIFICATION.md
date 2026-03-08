@@ -10,6 +10,7 @@
 ---
 
 ## Table of Contents
+0. [Product Requirements](#0-product-requirements)
 1. [Technology Stack](#1-technology-stack)
 2. [Application Structure](#2-application-structure)
 3. [Data Models & JSON Schema](#3-data-models--json-schema)
@@ -23,6 +24,101 @@
 11. [Performance Requirements](#11-performance-requirements)
 
 ---
+
+## 0. Product Requirements
+
+### 0.1 Scope
+
+- Provide a touch-first interface for setting alarms and playing stories.
+- Allow selecting an alarm sound per alarm.
+- Support MP3 files only, installed via SSH.
+- No remote control features in v2.0.
+
+### 0.2 Personas and Usage
+
+- Primary users: children (approx. ages 5 to 10).
+- Device operation is entirely child-driven; adult involvement is limited to media updates via PC commands.
+- Usage context: bedside alarm and bedtime story playback.
+
+### 0.3 Functional Requirements
+
+Alarms
+- FR-ALARM-001: The system SHALL allow creating, editing, and deleting alarms.
+- FR-ALARM-002: Each alarm SHALL define a time (HH:MM, 24 hour).
+- FR-ALARM-003: Each alarm SHALL support day-of-week activation toggles.
+- FR-ALARM-004: Each alarm SHALL allow selecting one MP3 sound for the alarm.
+- FR-ALARM-005: Alarm playback SHALL loop until stopped or max duration is reached.
+- FR-ALARM-006: Each alarm SHALL have an enabled or disabled state.
+- FR-ALARM-007: Each alarm SHALL support a per-alarm volume setting.
+- FR-ALARM-008: Alarm snooze SHOULD be supported with 5 to 10 minute interval.
+- FR-ALARM-009: If an alarm triggers while a story is playing, story playback SHALL pause.
+- FR-ALARM-010: Alarm time and day selection SHALL be edited separately from alarm sound selection.
+
+Stories
+- FR-STORY-001: The system SHALL list MP3 stories from internal /home/pi/picuentacuentos/media/stories.
+- FR-STORY-002: The system SHALL allow play, pause, and stop controls.
+- FR-STORY-003: The system SHALL allow next and previous within a collection.
+- FR-STORY-004: The system SHALL provide a sleep timer with presets 10, 20, 30, 45, 60 minutes.
+- FR-STORY-005: The system SHALL stop playback when the sleep timer elapses.
+
+Media install and catalogs
+- FR-MEDIA-001: The system SHALL load media catalogs from JSON files at startup.
+- FR-MEDIA-002: Media catalog changes SHALL require app restart to take effect.
+- FR-MEDIA-003: Media SHALL be installed via SSH to internal storage.
+- FR-MEDIA-004: Media files SHALL be referenced via JSON catalogs, not filesystem scanning.
+
+User interface
+- FR-UI-001: All features SHALL be operable via touch only.
+- FR-UI-002: The home screen SHALL show current time and day.
+- FR-UI-003: The system SHALL provide dedicated screens for alarms and stories.
+- FR-UI-004: The system SHALL provide a settings screen.
+- FR-UI-005: The system SHALL allow selecting a wallpaper via a JSON-configured path.
+
+System behavior
+- FR-SYS-001: The app SHALL auto-start at boot in full-screen mode.
+- FR-SYS-002: The system SHALL persist alarms and settings across reboots.
+
+### 0.4 Non-Functional Requirements
+
+- NFR-UX-001: Touch targets SHALL be at least 9 mm in size.
+- NFR-PERF-001: Boot to UI target is 30 seconds or less.
+- NFR-ROB-001: Settings SHALL be written using safe write (temp file then rename).
+- NFR-AUDIO-001: Only one audio stream SHALL be active at a time.
+- NFR-REL-001: Alarms MUST trigger regardless of story playback state.
+
+### 0.5 Media Conventions
+
+- Internal folder layout:
+  - /home/pi/picuentacuentos/media/animal_sounds: alarm sounds and images
+  - /home/pi/picuentacuentos/media/stories: story files and optional icons
+  - /home/pi/picuentacuentos/media/animal_sounds/sounds.json: alarm catalog
+  - /home/pi/picuentacuentos/media/stories/stories.json: story catalog
+  - /home/pi/picuentacuentos/wallpapers/default.png: default wallpaper
+- File types: MP3 only in v2.0.
+- Display name: from JSON catalog (label/title).
+
+### 0.6 UI Structure and Flows
+
+Screens
+- HomeScreen: time and day, buttons for Alarms, Stories, Settings
+- AlarmListScreen: list alarms with time and enabled toggle, add alarm button
+- AlarmTimeScreen: time selector, day toggles, save or delete
+- AlarmSoundScreen: sound picker from sounds.json, volume slider
+- StoryLibraryScreen: list stories by folder, tap to open NowPlayingScreen
+- NowPlayingScreen: title, play or pause, next or previous, sleep timer button
+- AlarmRingingScreen: stop and snooze buttons
+- SettingsScreen: time set, max volume, brightness
+
+Primary flows
+- Alarm setup: Home -> Alarms -> Add Alarm -> Set time and days -> Next -> Choose sound -> Save
+- Story playback: Home -> Stories -> Select Story -> Play -> Sleep Timer optional
+- Media update: Upload MP3s via SSH -> update JSON catalogs -> restart app
+
+### 0.7 Out of Scope v2.0
+
+- Remote control of playback
+- Multiple user profiles
+- Playlists or shuffle
 
 ## 1. Technology Stack
 
@@ -291,6 +387,7 @@ class DisplaySettings:
     auto_dim_timeout: int = 30
     dim_brightness: int = 20
     orientation: int = 0
+    wallpaper_path: str = "/home/pi/picuentacuentos/wallpapers/default.png"
 
 @dataclass
 class AlarmSettings:
@@ -361,7 +458,8 @@ class Settings:
     "brightness": 80,
     "auto_dim_timeout": 30,
     "dim_brightness": 20,
-    "orientation": 0
+    "orientation": 0,
+    "wallpaper_path": "/home/pi/picuentacuentos/wallpapers/default.png"
   },
   "alarms": {
     "snooze_duration_minutes": 5,

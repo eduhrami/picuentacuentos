@@ -30,7 +30,7 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Upload media files from any computer on your network
 - No USB drives needed!
 - Media catalogs loaded at startup (edit JSON + restart)
-- Remote administration via SCP/SFTP
+- Updates handled via PC commands; device use remains child-only
 - Secure, administrator-controlled
 
 ### 🎨 Child-Friendly Design
@@ -39,6 +39,7 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Simple navigation (2-3 levels max)
 - Emoji icons for easy recognition
 - 480×320 pixel display optimized
+- Configurable wallpaper via `config/settings.json`
 
 ---
 

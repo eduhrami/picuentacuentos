@@ -224,9 +224,9 @@ Expected total boot time after these changes: **under 20 seconds**.
 
 ```bash
 # Clone or copy the project
-cd /home/pi/src
+cd /home/pi
 git clone https://github.com/eduhrami/picuentacuentos.git
-cd picuentacuentos
+cd /home/pi/picuentacuentos
 
 # Create Python virtual environment and install dependencies
 python3 -m venv venv
@@ -255,8 +255,10 @@ pip install -r requirements.txt
 ### Copy files:
 
 ```bash
-scp your-alarm.mp3 your-alarm.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
-scp your-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
+rsync -av your-alarm.mp3 your-alarm.png \
+    pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+rsync -av your-story.mp3 \
+    pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 **Recommended MP3 format:** 128kbps+, 44.1kHz stereo
@@ -274,7 +276,7 @@ nano /home/pi/kiosk.conf
 
 Change `KIOSK_APP` to:
 ```bash
-KIOSK_APP="python3 /home/pi/picuentacuentos/main.py"
+KIOSK_APP="/home/pi/picuentacuentos/venv/bin/python /home/pi/picuentacuentos/app/main.py"
 KIOSK_DISPLAY=":0"
 ```
 
@@ -345,20 +347,35 @@ sudo reboot
 
 ---
 
-## Updating Media via SSH
+## Updating Media
 
-1. **Copy files** to the media directories:
-   ```
-   scp new-sound.mp3 new-sound.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
-   scp new-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
-   ```
+Media updates are handled from a PC via SSH commands; device operation remains
+child-only. See `docs/MEDIA_MANAGEMENT.md` for the full catalog format and
+update workflow.
 
-2. **Update catalogs** (`sounds.json` and `stories.json`)
+---
 
-3. **Restart the app**:
-   ```bash
-   sudo systemctl restart getty@tty1
-   ```
+## Routine Deployment (code update)
+
+Use the `deploy-to-pi` skill for the standard workflow, or run manually from the
+dev machine:
+
+```bash
+# 1. Sync updated code (excludes venv, media, and user data)
+rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
+    /home/tozanni/src/picuentacuentos/ \
+    pi@192.168.100.150:/home/pi/picuentacuentos/
+
+# 2. Update Python dependencies if requirements.txt changed
+ssh pi@192.168.100.150 '
+    cd /home/pi/picuentacuentos
+    source venv/bin/activate
+    pip install -q -r requirements.txt
+'
+
+# 3. Restart the kiosk to pick up the new code
+ssh pi@192.168.100.150 'sudo systemctl restart getty@tty1'
+```
 
 ---
 
@@ -403,7 +420,7 @@ cat ~/kiosk.conf
 ps aux | grep main.py | grep -v grep
 
 # Test manually on the X display
-DISPLAY=:0 python3 /home/pi/picuentacuentos/main.py
+DISPLAY=:0 /home/pi/picuentacuentos/venv/bin/python /home/pi/picuentacuentos/app/main.py
 
 # Revert to xeyes to confirm X itself is working
 nano ~/kiosk.conf   # set KIOSK_APP="xeyes -geometry 480x320+0+0"
@@ -433,6 +450,31 @@ rm /home/pi/picuentacuentos/data/alarms.json
 rm /home/pi/picuentacuentos/config/settings.json
 sudo systemctl restart getty@tty1
 # files will be recreated with defaults on next start
+```
+
+---
+
+## Rollback
+
+To restore the previous version of a file or revert a bad deploy, re-sync from a
+known good state on the dev machine:
+
+```bash
+# Hard-reset dev working tree to last commit, then re-deploy
+git -C /home/tozanni/src/picuentacuentos checkout .
+rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
+    /home/tozanni/src/picuentacuentos/ \
+    pi@192.168.100.150:/home/pi/picuentacuentos/
+ssh pi@192.168.100.150 'sudo systemctl restart getty@tty1'
+```
+
+To fall back to `xeyes` on the LCD while diagnosing a broken app:
+
+```bash
+ssh pi@192.168.100.150 "
+    sed -i 's|^KIOSK_APP=.*|KIOSK_APP=\"xeyes -geometry 480x320+0+0\"|' /home/pi/kiosk.conf
+    sudo systemctl restart getty@tty1
+"
 ```
 
 ---
@@ -481,6 +523,16 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
   "media": {
     "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
     "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
+  }
+}
+```
+
+### Set wallpaper
+
+```json
+{
+  "display": {
+    "wallpaper_path": "/home/pi/picuentacuentos/wallpapers/default.png"
   }
 }
 ```
