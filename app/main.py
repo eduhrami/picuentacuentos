@@ -221,6 +221,10 @@ class RootScreenManager(ScreenManager):
     pass
 
 
+class AlarmRingingScreen(Screen):
+    pass
+
+
 class PiCuentaCuentosApp(App):
     wallpaper_path = StringProperty("")
     story_icon_path = StringProperty("")

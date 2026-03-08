@@ -120,6 +120,8 @@ UI implementation note
 - For icon buttons with images + labels, use a single custom widget that combines
   `ButtonBehavior` with a layout (e.g., `ButtonBehavior+BoxLayout`) so the icon
   stays inside the button bounds.
+- For header navigation on first-level list screens, use a compact icon button
+  (48px container, 32px icon) aligned to the top-left.
 
 ### 0.7 Out of Scope v2.0
 

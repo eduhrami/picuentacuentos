@@ -58,6 +58,29 @@
         valign: "middle"
         text_size: self.size
 
+<SmallIconButton@ButtonBehavior+BoxLayout>:
+    icon_source: ""
+    bg_color: 0.95, 0.95, 0.95, 1
+    size_hint: None, None
+    size: "48dp", "48dp"
+    canvas.before:
+        Color:
+            rgba: root.bg_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [12,]
+    AnchorLayout:
+        size_hint: 1, 1
+        anchor_x: "center"
+        anchor_y: "center"
+        Image:
+            source: root.icon_source
+            size_hint: None, None
+            size: "32dp", "32dp"
+            allow_stretch: True
+            keep_ratio: True
+
 <Pill@Label>:
     canvas.before:
         Color:
@@ -229,17 +252,9 @@
                 height: "60dp"
                 padding: 12, 10
                 spacing: 10
-                Button:
-                    background_normal: ""
-                    background_down: ""
-                    background_color: 0.95, 0.95, 0.95, 1
-                    size_hint_x: None
-                    width: "60dp"
+                SmallIconButton:
+                    icon_source: app.home_icon_path
                     on_release: root.manager.current = "home"
-                    Image:
-                        source: app.home_icon_path
-                        allow_stretch: True
-                        keep_ratio: True
                 Label:
                     text: "CUENTOS"
                     bold: True
