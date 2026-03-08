@@ -237,7 +237,8 @@ cd /home/pi/picuentacuentos
 # Create Python virtual environment and install dependencies
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install --upgrade pip setuptools wheel
+pip install kivy
 ```
 
 ---
@@ -371,11 +372,12 @@ rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.gi
     /home/tozanni/src/picuentacuentos/ \
     pi@picuentacuentos.local:/home/pi/picuentacuentos/
 
-# 2. Update Python dependencies if requirements.txt changed
+# 2. Update Python dependencies if needed
 ssh pi@picuentacuentos.local '
     cd /home/pi/picuentacuentos
     source venv/bin/activate
-    pip install -q -r requirements.txt
+    pip install --upgrade pip setuptools wheel
+    pip install kivy
 '
 
 # 3. Restart the kiosk to pick up the new code
@@ -445,7 +447,8 @@ aplay /usr/share/sounds/alsa/Front_Center.wav   # test
 ```bash
 cd /home/pi/picuentacuentos
 source venv/bin/activate
-pip install --upgrade -r requirements.txt
+pip install --upgrade pip setuptools wheel
+pip install kivy
 ```
 
 ### Reset to default settings
