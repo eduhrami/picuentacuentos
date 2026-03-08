@@ -138,3 +138,11 @@ scp frog.mp3 frog.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/an
 ssh pi@picuentacuentos.local 'nano /home/pi/picuentacuentos/media/stories/stories.json'
 ssh pi@picuentacuentos.local 'sudo systemctl restart getty@tty1'
 ```
+
+If `picuentacuentos.local` does not resolve, add it on your PC:
+- Linux/macOS:
+  ```bash
+  sudo sh -c 'printf "\n192.168.x.x picuentacuentos.local\n" >> /etc/hosts'
+  ```
+- Windows: add `192.168.x.x picuentacuentos.local` to
+  `C:\Windows\System32\drivers\etc\hosts`

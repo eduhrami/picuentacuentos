@@ -121,6 +121,14 @@ rsync -av ~/my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/
 - Password: [your password]
 - Path: `/home/pi/picuentacuentos/media/`
 
+If `picuentacuentos.local` does not resolve, add it to your hosts file:
+- Linux/macOS:
+  ```bash
+  sudo sh -c 'printf "\n192.168.x.x picuentacuentos.local\n" >> /etc/hosts'
+  ```
+- Windows: add `192.168.x.x picuentacuentos.local` to
+  `C:\Windows\System32\drivers\etc\hosts`
+
 See [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for complete guide.
 
 ---
@@ -275,6 +283,9 @@ ssh pi@picuentacuentos.local
 
 # Check network
 ping picuentacuentos.local
+
+# If hostname doesn't resolve, add to hosts file
+sudo sh -c 'printf "\n192.168.x.x picuentacuentos.local\n" >> /etc/hosts'
 ```
 
 ### Files Not Appearing

@@ -1,6 +1,6 @@
 # LCD Display & Kiosk Setup
 
-**Device:** cuentacuentos — Raspberry Pi 4, 192.168.100.150 (user: pi)
+**Device:** picuentacuentos — Raspberry Pi 4, `picuentacuentos.local` (user: pi)
 **Display:** 3.5" ILI9486 TFT LCD, 480x320, 16-bit RGB565, SPI interface
 **Framebuffer:** /dev/fb1 — Touchscreen: ADS7846 at /dev/input/event4
 

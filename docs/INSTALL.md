@@ -33,7 +33,7 @@ with a 3.5" SPI LCD touchscreen in kiosk mode (no desktop environment required).
    - Click "Choose Storage" and select your microSD card
 
 3. **Configure Settings (⚙️ gear icon):**
-   - Set hostname: `picuentacuentos`
+   - Set hostname: `picuentacuentos` (advertises as `picuentacuentos.local`)
    - Enable SSH: ✓ (required for setup and troubleshooting)
    - Set username: `pi`
    - Set password: (your choice)
@@ -55,8 +55,14 @@ with a 3.5" SPI LCD touchscreen in kiosk mode (no desktop environment required).
 2. **SSH into the Pi** once it appears on the network:
    ```bash
    ssh pi@picuentacuentos.local
-   # or use its IP address: ssh pi@192.168.x.x
    ```
+   If `picuentacuentos.local` does not resolve, add it on your PC:
+   - Linux/macOS:
+     ```bash
+     sudo sh -c 'printf "\n192.168.x.x picuentacuentos.local\n" >> /etc/hosts'
+     ```
+   - Windows: add `192.168.x.x picuentacuentos.local` to
+     `C:\Windows\System32\drivers\etc\hosts`
 
 3. **Enable the LCD display driver** by editing the boot config:
    ```bash
@@ -363,17 +369,17 @@ dev machine:
 # 1. Sync updated code (excludes venv, media, and user data)
 rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
     /home/tozanni/src/picuentacuentos/ \
-    pi@192.168.100.150:/home/pi/picuentacuentos/
+    pi@picuentacuentos.local:/home/pi/picuentacuentos/
 
 # 2. Update Python dependencies if requirements.txt changed
-ssh pi@192.168.100.150 '
+ssh pi@picuentacuentos.local '
     cd /home/pi/picuentacuentos
     source venv/bin/activate
     pip install -q -r requirements.txt
 '
 
 # 3. Restart the kiosk to pick up the new code
-ssh pi@192.168.100.150 'sudo systemctl restart getty@tty1'
+ssh pi@picuentacuentos.local 'sudo systemctl restart getty@tty1'
 ```
 
 ---
@@ -463,14 +469,14 @@ known good state on the dev machine:
 git -C /home/tozanni/src/picuentacuentos checkout .
 rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
     /home/tozanni/src/picuentacuentos/ \
-    pi@192.168.100.150:/home/pi/picuentacuentos/
-ssh pi@192.168.100.150 'sudo systemctl restart getty@tty1'
+    pi@picuentacuentos.local:/home/pi/picuentacuentos/
+ssh pi@picuentacuentos.local 'sudo systemctl restart getty@tty1'
 ```
 
 To fall back to `xeyes` on the LCD while diagnosing a broken app:
 
 ```bash
-ssh pi@192.168.100.150 "
+ssh pi@picuentacuentos.local "
     sed -i 's|^KIOSK_APP=.*|KIOSK_APP=\"xeyes -geometry 480x320+0+0\"|' /home/pi/kiosk.conf
     sudo systemctl restart getty@tty1
 "
