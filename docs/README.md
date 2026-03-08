@@ -37,7 +37,7 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Large touch targets (80×80 pixels minimum)
 - High-contrast, colorful interface
 - Simple navigation (2-3 levels max)
-- Emoji icons for easy recognition
+- Large icon buttons (128px) on Home and Player controls
 - 480×320 pixel display optimized
 - Fixed wallpaper from `/home/pi/picuentacuentos/media/wallpapers/default.png`
 
@@ -178,6 +178,8 @@ picuentacuentos/
 │   ├── animal_sounds/      # Alarm sounds + images
 │   │   └── sounds.json     # Alarm catalog
 │   └── stories/            # Story MP3 files + icons
+├── assets/
+│   └── icons/              # UI icons (stories.png, alarm.png)
 │       └── stories.json    # Story catalog
 ├── mockups/                # UI mockups (HTML)
 └── setup.sh                # Installation script

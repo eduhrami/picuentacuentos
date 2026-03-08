@@ -257,6 +257,13 @@ pip install kivy
     ├── stories.json
     ├── three-little-pigs.mp3
     └── goldilocks.mp3
+
+/home/pi/picuentacuentos/assets/
+└── icons/
+    ├── book.png        # Home Stories icon (128px)
+    ├── bell.png        # Home Alarms icon (128px)
+    ├── back.png        # Back arrow for sub-screens
+    └── home.png        # Home icon for list screens
 ```
 
 ### Copy files:
@@ -367,8 +374,8 @@ Use the `deploy-to-pi` skill for the standard workflow, or run manually from the
 dev machine:
 
 ```bash
-# 1. Sync updated code (excludes venv, media, and user data)
-rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
+# 1. Sync updated code (excludes venv and data, includes media)
+rsync -avz --exclude='venv/' --exclude='data/' --exclude='.git/' \
     /home/tozanni/src/picuentacuentos/ \
     pi@picuentacuentos.local:/home/pi/picuentacuentos/
 
@@ -470,7 +477,7 @@ known good state on the dev machine:
 ```bash
 # Hard-reset dev working tree to last commit, then re-deploy
 git -C /home/tozanni/src/picuentacuentos checkout .
-rsync -avz --exclude='venv/' --exclude='media/' --exclude='data/' --exclude='.git/' \
+rsync -avz --exclude='venv/' --exclude='data/' --exclude='.git/' \
     /home/tozanni/src/picuentacuentos/ \
     pi@picuentacuentos.local:/home/pi/picuentacuentos/
 ssh pi@picuentacuentos.local 'sudo systemctl restart getty@tty1'

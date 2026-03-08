@@ -1,6 +1,13 @@
 import json
 from pathlib import Path
 
+from kivy.config import Config
+
+Config.set("graphics", "width", "480")
+Config.set("graphics", "height", "320")
+Config.set("graphics", "fullscreen", "1")
+Config.set("graphics", "borderless", "1")
+
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -10,7 +17,18 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen, ScreenManager
 
-from app.constants import ALARMS_JSON, ANIMAL_SOUNDS_DIR, SOUNDS_JSON, STORIES_JSON, WALLPAPER_PATH
+from app.constants import (
+    ALARMS_JSON,
+    ALARM_ICON,
+    ANIMAL_SOUNDS_DIR,
+    BACK_ICON,
+    FALLBACK_WALLPAPER,
+    HOME_ICON,
+    SOUNDS_JSON,
+    STORIES_JSON,
+    STORY_ICON,
+    WALLPAPER_PATH,
+)
 
 
 def _safe_load_json(path: Path, key: str):
@@ -195,15 +213,25 @@ class RootScreenManager(ScreenManager):
 
 class PiCuentaCuentosApp(App):
     wallpaper_path = StringProperty("")
+    story_icon_path = StringProperty("")
+    alarm_icon_path = StringProperty("")
+    back_icon_path = StringProperty("")
+    home_icon_path = StringProperty("")
 
     def build(self):
         Window.clearcolor = (0.95, 0.95, 0.95, 1)
-        self.wallpaper_path = str(WALLPAPER_PATH.resolve())
+        if WALLPAPER_PATH.exists():
+            self.wallpaper_path = str(WALLPAPER_PATH.resolve())
+        elif FALLBACK_WALLPAPER.exists():
+            self.wallpaper_path = str(FALLBACK_WALLPAPER.resolve())
+        else:
+            self.wallpaper_path = ""
         return Builder.load_file(str(Path(__file__).with_name("ui.kv")))
 
     def on_start(self):
         Clock.schedule_interval(self._update_time, 1)
         self._update_time(0)
+        self._load_home_icons()
 
     def _update_time(self, _dt):
         from datetime import datetime
@@ -212,6 +240,27 @@ class PiCuentaCuentosApp(App):
         home = self.root.get_screen("home")
         home.ids.time_label.text = now.strftime("%H:%M")
         home.ids.date_label.text = now.strftime("%a, %d %b")
+
+    def _load_home_icons(self):
+        if STORY_ICON.exists():
+            self.story_icon_path = str(STORY_ICON.resolve())
+        else:
+            self.story_icon_path = ""
+
+        if ALARM_ICON.exists():
+            self.alarm_icon_path = str(ALARM_ICON.resolve())
+        else:
+            self.alarm_icon_path = ""
+
+        if BACK_ICON.exists():
+            self.back_icon_path = str(BACK_ICON.resolve())
+        else:
+            self.back_icon_path = ""
+
+        if HOME_ICON.exists():
+            self.home_icon_path = str(HOME_ICON.resolve())
+        else:
+            self.home_icon_path = ""
 
     def open_story(self, story: dict):
         player = self.root.get_screen("story_player")

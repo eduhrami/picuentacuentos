@@ -2,6 +2,8 @@
 
 <Wallpaper@Widget>:
     canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
         Rectangle:
             source: app.wallpaper_path if app.wallpaper_path else ""
             pos: self.pos
@@ -14,18 +16,47 @@
 
 <PCTLabel@Label>:
     color: 0.12, 0.12, 0.12, 1
-    text_size: self.size
-    halign: "center"
-    valign: "middle"
 
-<IconButton@Button>:
-    background_normal: ""
-    background_down: ""
-    background_color: 0.4, 0.5, 0.9, 1
-    color: 1, 1, 1, 1
-    font_size: "38sp"
+<HomeButton@ButtonBehavior+BoxLayout>:
+    icon_source: ""
+    label_text: ""
+    bg_color: 0.4, 0.5, 0.9, 1
+    orientation: "vertical"
+    padding: 8
+    spacing: 4
     size_hint: 1, 1
-    border: 12, 12, 12, 12
+    canvas.before:
+        Color:
+            rgba: root.bg_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [16,]
+    canvas.after:
+        Color:
+            rgba: 1, 1, 1, 0.9
+        Line:
+            width: 1
+            rounded_rectangle: (self.x + 1, self.y + 1, self.width - 2, self.height - 2, 16, 16, 16, 16)
+    AnchorLayout:
+        size_hint: 1, 1
+        anchor_x: "center"
+        anchor_y: "center"
+        Image:
+            source: root.icon_source
+            size_hint: None, None
+            size: "128dp", "128dp"
+            allow_stretch: True
+            keep_ratio: True
+    Label:
+        text: root.label_text
+        font_size: "16sp"
+        color: 1, 1, 1, 1
+        size_hint_y: None
+        height: "22dp"
+        halign: "center"
+        valign: "middle"
+        text_size: self.size
 
 <Pill@Label>:
     canvas.before:
@@ -46,41 +77,74 @@
             pos: 0, 0
         BoxLayout:
             orientation: "vertical"
-            padding: 20
-            spacing: 12
+            padding: 14
+            spacing: 8
             size_hint: 1, 1
             BoxLayout:
                 orientation: "vertical"
                 size_hint_y: None
-                height: "110dp"
-                PCTLabel:
+                height: "96dp"
+                padding: 6
+                canvas.before:
+                    Color:
+                        rgba: 1, 1, 1, 0.95
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [16,]
+                Label:
                     id: time_label
                     text: "07:35"
-                    font_size: "52sp"
+                    font_size: "54sp"
                     bold: True
-                PCTLabel:
+                    color: 0, 0, 0, 1
+                    size_hint_y: None
+                    height: "58dp"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                Label:
                     id: date_label
                     text: "Lun, 10 Mar"
                     font_size: "18sp"
-                    color: 0.4, 0.4, 0.4, 1
-            Widget:
+                    color: 0.15, 0.15, 0.15, 1
+                    size_hint_y: None
+                    height: "22dp"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
             Pill:
                 text: "⏰ Proxima alarma: 06:30"
                 size_hint_y: None
-                height: "38dp"
+                height: "34dp"
                 halign: "center"
                 valign: "middle"
-            Widget:
-            GridLayout:
-                cols: 2
-                spacing: 16
-                size_hint_y: 1
-                IconButton:
-                    text: "📖"
-                    on_release: root.manager.current = "story_list"
-                IconButton:
-                    text: "🔔"
-                    on_release: root.manager.current = "alarm_list"
+            AnchorLayout:
+                size_hint_y: None
+                height: "144dp"
+                anchor_x: "center"
+                anchor_y: "center"
+                GridLayout:
+                    cols: 2
+                    spacing: 12
+                    padding: 12, 0
+                    size_hint: None, None
+                    width: "320dp"
+                    height: "144dp"
+                    row_default_height: "144dp"
+                    row_force_default: True
+                    col_default_width: "154dp"
+                    col_force_default: True
+                    HomeButton:
+                        bg_color: 0.31, 0.72, 0.47, 1
+                        icon_source: app.story_icon_path
+                        label_text: "Cuentos"
+                        on_release: root.manager.current = "story_list"
+                    HomeButton:
+                        bg_color: 0.29, 0.45, 0.89, 1
+                        icon_source: app.alarm_icon_path
+                        label_text: "Alarmas"
+                        on_release: root.manager.current = "alarm_list"
 
 <StoryCard>:
     orientation: "vertical"
@@ -96,20 +160,16 @@
     on_release: app.open_story(self.story)
     AsyncImage:
         source: root.story.get("icon_path", "")
-        allow_stretch: True
-        keep_ratio: True
     Label:
         text: root.story.get("title", "")
         font_size: "14sp"
         color: 0.1, 0.1, 0.1, 1
 
 <StoryImage@AsyncImage>:
-    allow_stretch: True
-    keep_ratio: True
+
 
 <SoundImage@AsyncImage>:
-    allow_stretch: True
-    keep_ratio: True
+
 
 <SoundCard>:
     orientation: "vertical"
@@ -170,10 +230,16 @@
                 padding: 12, 10
                 spacing: 10
                 Button:
-                    text: "←"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: 0.95, 0.95, 0.95, 1
                     size_hint_x: None
                     width: "60dp"
                     on_release: root.manager.current = "home"
+                    Image:
+                        source: app.home_icon_path
+                        allow_stretch: True
+                        keep_ratio: True
                 Label:
                     text: "CUENTOS"
                     bold: True
@@ -209,10 +275,16 @@
                 height: "60dp"
                 spacing: 10
                 Button:
-                    text: "←"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: 0.95, 0.95, 0.95, 1
                     size_hint_x: None
                     width: "60dp"
                     on_release: root.manager.current = "story_list"
+                    Image:
+                        source: app.back_icon_path
+                        allow_stretch: True
+                        keep_ratio: True
                 Label:
                     text: "REPRODUCIENDO"
                     bold: True
@@ -274,10 +346,16 @@
                 height: "60dp"
                 spacing: 10
                 Button:
-                    text: "←"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: 0.95, 0.95, 0.95, 1
                     size_hint_x: None
                     width: "60dp"
                     on_release: root.manager.current = "home"
+                    Image:
+                        source: app.home_icon_path
+                        allow_stretch: True
+                        keep_ratio: True
                 Label:
                     text: "ALARMS"
                     bold: True
@@ -316,10 +394,16 @@
                 height: "60dp"
                 spacing: 10
                 Button:
-                    text: "←"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: 0.95, 0.95, 0.95, 1
                     size_hint_x: None
                     width: "60dp"
                     on_release: root.manager.current = "alarm_list"
+                    Image:
+                        source: app.back_icon_path
+                        allow_stretch: True
+                        keep_ratio: True
                 Label:
                     text: "Alarm Time"
                     bold: True
@@ -380,10 +464,16 @@
                 height: "60dp"
                 spacing: 10
                 Button:
-                    text: "←"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: 0.95, 0.95, 0.95, 1
                     size_hint_x: None
                     width: "60dp"
                     on_release: root.manager.current = "alarm_time"
+                    Image:
+                        source: app.back_icon_path
+                        allow_stretch: True
+                        keep_ratio: True
                 Label:
                     text: "Alarm Sound"
                     bold: True
@@ -396,16 +486,16 @@
                     size_hint_x: None
                     width: "80dp"
                     on_release: root.manager.current = "alarm_list"
-        ScrollView:
-            GridLayout:
-                id: sound_grid
-                cols: 3
-                spacing: 8
-                padding: 8
-                size_hint_y: None
-                height: self.minimum_height
-                row_default_height: "90dp"
-                row_force_default: True
+            ScrollView:
+                GridLayout:
+                    id: sound_grid
+                    cols: 3
+                    spacing: 8
+                    padding: 8
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: "90dp"
+                    row_force_default: True
 
 RootScreenManager:
     HomeScreen:

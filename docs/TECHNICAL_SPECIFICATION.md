@@ -102,19 +102,24 @@ System behavior
 ### 0.6 UI Structure and Flows
 
 Screens
-- HomeScreen: time and day, icon-only buttons for Stories and Alarms
+- HomeScreen: time and day, large icon buttons for Stories and Alarms (128px art)
 - AlarmListScreen: list alarms with time and enabled toggle, add button in header
 - AlarmTimeScreen: time selector, day toggles, save or delete
 - AlarmSoundScreen: sound picker from sounds.json
 - StoryLibraryScreen: list stories by folder, tap to open NowPlayingScreen
 - StoryLibraryScreen: list stories with cover images, tap to open NowPlayingScreen
-- NowPlayingScreen: title, story image, play or pause (toggle label/icon), next or previous, sleep timer button
+- NowPlayingScreen: title, story image, large play/pause icon, next or previous, sleep timer button
 - AlarmRingingScreen: stop and snooze buttons
 
 Primary flows
 - Alarm setup: Home -> Alarms -> Add Alarm -> Set time and days -> Next -> Choose sound -> Save
 - Story playback: Home -> Stories -> Story List -> Select Story -> Play -> Sleep Timer optional
 - Media update: Upload MP3s via SSH -> update JSON catalogs -> restart app
+
+UI implementation note
+- For icon buttons with images + labels, use a single custom widget that combines
+  `ButtonBehavior` with a layout (e.g., `ButtonBehavior+BoxLayout`) so the icon
+  stays inside the button bounds.
 
 ### 0.7 Out of Scope v2.0
 
@@ -253,8 +258,7 @@ openssh-server
 │   │   └── Roboto-Regular.ttf
 │   ├── icons/
 │   │   ├── alarm.png
-│   │   ├── story.png
-│   │   └── settings.png
+│   │   └── stories.png
 │   └── kv/
 │       ├── home.kv                 # Kivy layout files
 │       ├── alarm_list.kv

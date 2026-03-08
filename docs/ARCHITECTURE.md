@@ -219,11 +219,11 @@ class UIManager:
 ```
 
 **Screen Definitions:**
-- HomeScreen: Main menu with time and navigation
+- HomeScreen: Main menu with time and large icon buttons (128px)
 - AlarmListScreen: Display and manage alarms
 - AlarmTimeScreen: Edit alarm time and days
 - AlarmSoundScreen: Select alarm sound
-- StoryPlayerScreen: Browse and play stories
+- StoryPlayerScreen: Browse and play stories with large play/pause icon
 - SettingsScreen: System configuration
 - AlarmActiveScreen: Displayed during alarm trigger
 
@@ -534,8 +534,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │
 ├── assets/
 │   ├── fonts/                    # UI fonts
-│   ├── icons/                    # UI icons
-│   └── images/                   # Background images
+│   └── icons/                    # UI icons
 │
 ├── tests/
 │   ├── test_audio.py
@@ -911,7 +910,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Create directory structure
-mkdir -p config data media/alarms media/stories logs assets/{fonts,icons,images}
+mkdir -p config data media/alarms media/stories logs assets/{fonts,icons}
 
 # Initialize database
 python app/database/db_manager.py --init
