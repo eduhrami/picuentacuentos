@@ -22,8 +22,8 @@ ssh pi@192.168.100.150 'DISPLAY=:0 xeyes -geometry 480x320+0+0 &'
 # Xclock - analog clock
 ssh pi@192.168.100.150 'DISPLAY=:0 xclock -geometry 480x320+0+0 &'
 
-# Xclock - digital clock
-ssh pi@192.168.100.150 'DISPLAY=:0 xclock -digital -geometry 480x20+0+0 &'
+# Xclock - digital clock (centered, large font)
+ssh pi@192.168.100.150 'DISPLAY=:0 xclock -digital -face "fixed:size=24" -geometry 480x320+0+130 &'
 
 # Xterm - terminal on the LCD
 ssh pi@192.168.100.150 'DISPLAY=:0 xterm -geometry 80x24+0+0 &'

@@ -5,7 +5,7 @@
 **Project:** RP4 Kids' MP3 Player & Alarm Clock
 **UI Framework:** Kivy
 **Storage:** JSON (Internal Only)
-**Media Management:** SSH/SCP
+**Media Management:** JSON Config Files
 
 ---
 
@@ -33,9 +33,7 @@
 kivy==2.2.1
 pygame==2.5.2
 APScheduler==3.10.4
-mutagen==1.47.0
 python-dateutil==2.8.2
-watchdog==3.0.0
 ```
 
 ### 1.2 System Requirements
@@ -102,8 +100,7 @@ openssh-server
 │   │
 │   ├── media/
 │   │   ├── __init__.py
-│   │   ├── media_scanner.py        # Directory scanning
-│   │   └── file_watcher.py         # File system monitoring
+│   │   └── media_loader.py         # JSON config reader
 │   │
 │   ├── ui/
 │   │   ├── __init__.py
@@ -114,7 +111,8 @@ openssh-server
 │   │   │   ├── __init__.py
 │   │   │   ├── home.py             # Home screen
 │   │   │   ├── alarm_list.py       # Alarm list screen
-│   │   │   ├── alarm_edit.py       # Alarm editor
+│   │   │   ├── alarm_time.py       # Alarm time editor
+│   │   │   ├── alarm_sound.py      # Alarm sound picker
 │   │   │   ├── story_player.py     # Story player screen
 │   │   │   ├── alarm_trigger.py    # Active alarm screen
 │   │   │   └── settings.py         # Settings screen
@@ -135,16 +133,23 @@ openssh-server
 │
 ├── data/
 │   ├── alarms.json                 # Alarm storage
-│   ├── media.json                  # Media library
+│   ├── media.json                  # Media library (optional)
 │   ├── playback.json               # Playback state
 │   └── backups/                    # Backup files
 │
 ├── config/
 │   └── settings.json               # Application settings
 │
-├── media/                          # ** SSH upload target **
-│   ├── alarms/                     # Alarm sound files
-│   └── stories/                    # Story MP3 files
+├── media/
+│   ├── animal_sounds/              # Alarm sound files + images
+│   │   ├── sounds.json             # ** EDIT TO ADD/REMOVE alarm sounds **
+│   │   ├── lion.mp3
+│   │   ├── lion.png
+│   │   └── ...
+│   └── stories/                    # Story MP3 files + icons
+│       ├── stories.json            # ** EDIT TO ADD/REMOVE stories **
+│       ├── some-story.mp3
+│       └── some-icon.png           # optional per story
 │
 ├── assets/
 │   ├── fonts/
@@ -156,7 +161,8 @@ openssh-server
 │   └── kv/
 │       ├── home.kv                 # Kivy layout files
 │       ├── alarm_list.kv
-│       ├── alarm_edit.kv
+│       ├── alarm_time.kv
+│       ├── alarm_sound.kv
 │       ├── story_player.kv
 │       └── widgets.kv
 │
@@ -186,9 +192,7 @@ main.py
   │   ├── APScheduler
   │   └── storage.alarm_repository
   │
-  ├── media.media_scanner.MediaScanner
-  │   ├── watchdog
-  │   └── media.file_watcher
+  ├── media.media_loader.MediaLoader
   │
   ├── core.event_bus.EventBus
   ├── core.state_manager.StateManager
@@ -199,7 +203,72 @@ main.py
 
 ## 3. Data Models & JSON Schema
 
-[Content same as before for Alarm and MediaFile models...]
+### 3.1 Animal Sounds Config
+
+**File:** `media/animal_sounds/sounds.json`
+
+```json
+{
+  "sounds": [
+    {
+      "id": "lion",
+      "label": "León",
+      "sound": "lion.mp3",
+      "image": "lion.png"
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier |
+| `label` | string | Display name shown in the UI |
+| `sound` | string | Filename relative to `media/animal_sounds/` |
+| `image` | string | Filename relative to `media/animal_sounds/` |
+
+### 3.2 Stories Config
+
+**File:** `media/stories/stories.json`
+
+```json
+{
+  "stories": [
+    {
+      "id": "la-liebre-y-la-tortuga",
+      "title": "La Liebre y la Tortuga",
+      "sound": "01 La liebre 🐰 y la tortuga 🐢 - Fábula infantil.mp3",
+      "icon": "liebre.png"
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier |
+| `title` | string | Display title shown in the UI |
+| `sound` | string | Filename relative to `media/stories/` |
+| `icon` | string\|null | Filename relative to `media/stories/`, or `null` to use default icon |
+
+### 3.3 Alarm Model
+
+Alarms reference a sound by its `id` from `sounds.json`:
+
+```json
+{
+  "alarms": [
+    {
+      "id": "a1b2c3",
+      "label": "Despertar",
+      "time": "07:30",
+      "days": ["mon", "tue", "wed", "thu", "fri"],
+      "sound_id": "rooster",
+      "enabled": true
+    }
+  ]
+}
+```
 
 ### 3.4 Settings Model
 
@@ -236,9 +305,8 @@ class StorySettings:
 
 @dataclass
 class MediaSettings:
-    auto_scan: bool = True
-    scan_interval_seconds: int = 60
-    media_path: str = "/home/pi/picuentacuentos/media"
+    sounds_config: str = "/home/pi/picuentacuentos/media/animal_sounds/sounds.json"
+    stories_config: str = "/home/pi/picuentacuentos/media/stories/stories.json"
 
 @dataclass
 class SystemSettings:
@@ -305,9 +373,8 @@ class Settings:
     "resume_playback": true
   },
   "media": {
-    "auto_scan": true,
-    "scan_interval_seconds": 60,
-    "media_path": "/home/pi/picuentacuentos/media"
+    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   },
   "system": {
     "log_level": "INFO",
@@ -322,211 +389,71 @@ class Settings:
 
 [Alarm Repository and Media Repository sections remain the same...]
 
-### 4.4 Media Scanner API
+### 4.4 Media Loader API
 
-**File:** `app/media/media_scanner.py`
+**File:** `app/media/media_loader.py`
 
 ```python
+import json
 import os
-from typing import List, Optional
-from datetime import datetime
-from pathlib import Path
-from app.models.media import MediaFile
-from app.storage.media_repository import MediaRepository
-from app.audio.metadata import MP3Metadata
-from app.core.event_bus import EventBus, EventType
+from typing import List
+from dataclasses import dataclass
 
-class MediaScanner:
-    """Scan media directories and update library"""
+@dataclass
+class AnimalSound:
+    id: str
+    label: str
+    sound_path: str
+    image_path: str
 
-    def __init__(self, media_repo: MediaRepository, event_bus: EventBus, media_path: str):
-        self.media_repo = media_repo
-        self.event_bus = event_bus
-        self.media_path = media_path
-        self.alarms_path = os.path.join(media_path, "alarms")
-        self.stories_path = os.path.join(media_path, "stories")
+@dataclass
+class Story:
+    id: str
+    title: str
+    sound_path: str
+    icon_path: str | None  # None falls back to a default icon
 
-    def scan_all(self) -> dict:
-        """Scan all media directories"""
-        self.event_bus.publish(EventType.MEDIA_SCAN_STARTED)
+class MediaLoader:
+    """Load media catalogues from JSON config files."""
 
-        result = {
-            "files_added": 0,
-            "files_removed": 0,
-            "files_updated": 0,
-            "errors": []
-        }
+    def __init__(self, sounds_config: str, stories_config: str):
+        self.sounds_config = sounds_config
+        self.stories_config = stories_config
 
-        try:
-            # Scan alarms
-            result_alarms = self.scan_directory(self.alarms_path, "alarm")
-            result["files_added"] += result_alarms["added"]
-            result["files_updated"] += result_alarms["updated"]
-
-            # Scan stories
-            result_stories = self.scan_directory(self.stories_path, "story")
-            result["files_added"] += result_stories["added"]
-            result["files_updated"] += result_stories["updated"]
-
-            # Clean up orphaned entries
-            removed = self.media_repo.cleanup_missing()
-            result["files_removed"] = removed
-
-            self.event_bus.publish(EventType.MEDIA_SCAN_COMPLETE, result)
-
-        except Exception as e:
-            result["errors"].append(str(e))
-
-        return result
-
-    def scan_directory(self, directory: str, file_type: str) -> dict:
-        """Scan a specific directory for MP3 files"""
-        result = {"added": 0, "updated": 0}
-
-        if not os.path.exists(directory):
-            os.makedirs(directory, exist_ok=True)
-            return result
-
-        for filename in os.listdir(directory):
-            if not filename.lower().endswith('.mp3'):
-                continue
-
-            file_path = os.path.join(directory, filename)
-
-            if not os.path.isfile(file_path):
-                continue
-
-            # Check if file already exists in library
-            existing = self.media_repo.get_by_path(file_path)
-
-            if existing:
-                # Update if file has been modified
-                file_mtime = os.path.getmtime(file_path)
-                if file_mtime > datetime.fromisoformat(existing.added_at).timestamp():
-                    self._update_media_file(existing, file_path, file_type)
-                    result["updated"] += 1
-            else:
-                # Add new file
-                self._add_media_file(file_path, filename, file_type)
-                result["added"] += 1
-
-        return result
-
-    def _add_media_file(self, file_path: str, filename: str, file_type: str) -> None:
-        """Add new media file to library"""
-        try:
-            # Get metadata
-            duration = MP3Metadata.get_duration(file_path)
-            title, artist = MP3Metadata.get_tags(file_path)
-            file_size = os.path.getsize(file_path)
-
-            # Create media file object
-            media = MediaFile(
-                id=0,  # Will be assigned by repository
-                file_path=file_path,
-                file_name=filename,
-                file_type=file_type,
-                duration_seconds=duration,
-                file_size_bytes=file_size,
-                title=title,
-                artist=artist,
-                added_at=""  # Will be set by repository
+    def load_sounds(self) -> List[AnimalSound]:
+        """Return all animal sounds defined in sounds.json."""
+        base = os.path.dirname(self.sounds_config)
+        with open(self.sounds_config, encoding="utf-8") as f:
+            data = json.load(f)
+        return [
+            AnimalSound(
+                id=s["id"],
+                label=s["label"],
+                sound_path=os.path.join(base, s["sound"]),
+                image_path=os.path.join(base, s["image"]),
             )
+            for s in data["sounds"]
+        ]
 
-            # Add to repository
-            media_id = self.media_repo.add(media)
-
-            self.event_bus.publish(EventType.MEDIA_FILE_ADDED, {
-                "id": media_id,
-                "filename": filename,
-                "type": file_type
-            })
-
-        except Exception as e:
-            print(f"Error adding media file {filename}: {e}")
-
-    def _update_media_file(self, media: MediaFile, file_path: str, file_type: str) -> None:
-        """Update existing media file"""
-        try:
-            # Update metadata
-            duration = MP3Metadata.get_duration(file_path)
-            title, artist = MP3Metadata.get_tags(file_path)
-            file_size = os.path.getsize(file_path)
-
-            media.duration_seconds = duration
-            media.file_size_bytes = file_size
-            media.title = title
-            media.artist = artist
-
-            self.media_repo.update(media)
-
-        except Exception as e:
-            print(f"Error updating media file {media.file_name}: {e}")
+    def load_stories(self) -> List[Story]:
+        """Return all stories defined in stories.json."""
+        base = os.path.dirname(self.stories_config)
+        with open(self.stories_config, encoding="utf-8") as f:
+            data = json.load(f)
+        return [
+            Story(
+                id=s["id"],
+                title=s["title"],
+                sound_path=os.path.join(base, s["sound"]),
+                icon_path=os.path.join(base, s["icon"]) if s.get("icon") else None,
+            )
+            for s in data["stories"]
+        ]
 ```
 
-### 4.5 File Watcher API
+Media is loaded once at startup. To add or remove content, edit the JSON file and restart the app.
 
-**File:** `app/media/file_watcher.py`
-
-```python
-import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileSystemEvent
-from app.media.media_scanner import MediaScanner
-from threading import Thread
-
-class MediaFileHandler(FileSystemEventHandler):
-    """Handle file system events for media directories"""
-
-    def __init__(self, scanner: MediaScanner):
-        self.scanner = scanner
-        self.debounce_time = 2  # seconds
-        self.last_scan = 0
-
-    def on_created(self, event: FileSystemEvent):
-        """Handle file creation"""
-        if not event.is_directory and event.src_path.endswith('.mp3'):
-            self._trigger_scan()
-
-    def on_modified(self, event: FileSystemEvent):
-        """Handle file modification"""
-        if not event.is_directory and event.src_path.endswith('.mp3'):
-            self._trigger_scan()
-
-    def on_deleted(self, event: FileSystemEvent):
-        """Handle file deletion"""
-        if not event.is_directory and event.src_path.endswith('.mp3'):
-            self._trigger_scan()
-
-    def _trigger_scan(self):
-        """Trigger media scan with debouncing"""
-        current_time = time.time()
-        if current_time - self.last_scan > self.debounce_time:
-            self.last_scan = current_time
-            # Run scan in background thread
-            Thread(target=self.scanner.scan_all, daemon=True).start()
-
-class FileWatcher:
-    """Watch media directories for changes"""
-
-    def __init__(self, scanner: MediaScanner, media_path: str):
-        self.scanner = scanner
-        self.media_path = media_path
-        self.observer = Observer()
-        self.handler = MediaFileHandler(scanner)
-
-    def start(self):
-        """Start watching media directories"""
-        self.observer.schedule(self.handler, self.media_path, recursive=True)
-        self.observer.start()
-
-    def stop(self):
-        """Stop watching"""
-        self.observer.stop()
-        self.observer.join()
-```
-
-[Continue with remaining sections...Audio Engine, Alarm Scheduler, etc. remain the same]
+[Audio Engine, Alarm Scheduler, etc. remain the same]
 
 ---
 
@@ -554,13 +481,6 @@ class EventType:
     AUDIO_RESUMED = "audio.resumed"
     AUDIO_COMPLETE = "audio.complete"
 
-    # Media events
-    MEDIA_SCAN_STARTED = "media.scan_started"
-    MEDIA_SCAN_COMPLETE = "media.scan_complete"
-    MEDIA_FILE_ADDED = "media.file_added"
-    MEDIA_FILE_REMOVED = "media.file_removed"
-    MEDIA_FILE_UPDATED = "media.file_updated"
-
     # System events
     SLEEP_TIMER_STARTED = "system.sleep_timer_started"
     SLEEP_TIMER_EXPIRED = "system.sleep_timer_expired"
@@ -569,129 +489,57 @@ class EventType:
 
 ---
 
-## 9. Media Management via SSH
+## 9. Media Management via JSON Config
 
-### 9.1 SSH Server Configuration
+Media is catalogue-driven. The app reads two JSON files at startup and plays whatever
+is listed in them. There is no filesystem scanning or background watching.
 
-**Enable SSH on Raspberry Pi:**
+### 9.1 Adding an Animal Sound
 
-```bash
-sudo systemctl enable ssh
-sudo systemctl start ssh
+1. Copy the `.mp3` and `.png` files into `media/animal_sounds/`.
+2. Add an entry to `media/animal_sounds/sounds.json`:
+
+```json
+{
+  "id": "frog",
+  "label": "Rana",
+  "sound": "frog.mp3",
+  "image": "frog.png"
+}
 ```
 
-**Security Configuration:**
+3. Restart the app: `sudo systemctl restart getty@tty1`
 
-Edit `/etc/ssh/sshd_config`:
+### 9.2 Adding a Story
 
-```bash
-# Recommended settings for security
-PermitRootLogin no
-PasswordAuthentication yes  # Or use key-based auth
-PubkeyAuthentication yes
-Port 22
+1. Copy the `.mp3` into `media/stories/`. An icon image is optional.
+2. Add an entry to `media/stories/stories.json`:
+
+```json
+{
+  "id": "caperucita-roja",
+  "title": "Caperucita Roja",
+  "sound": "caperucita-roja.mp3",
+  "icon": "caperucita.png"
+}
 ```
 
-### 9.2 Uploading Media Files
+Set `"icon": null` to use the default story icon.
 
-**From Linux/Mac:**
+3. Restart the app: `sudo systemctl restart getty@tty1`
 
-```bash
-# Single file
-scp alarm-sound.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
+### 9.3 Removing Content
 
-# Multiple files
-scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
+Delete the entry from the JSON file and optionally remove the files from disk.
+Restart the app to apply.
 
-# Entire directory
-scp -r my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
-```
+### 9.4 File Specifications
 
-**From Windows:**
-
-Using WinSCP or FileZilla:
-- Host: picuentacuentos.local (or IP address)
-- Port: 22
-- Username: pi
-- Password: [your password]
-- Remote path: /home/pi/picuentacuentos/media/
-
-**Using rsync (recommended for large collections):**
-
-```bash
-# Sync entire media library
-rsync -av --progress /local/media/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/
-
-# Sync only stories
-rsync -av --progress /local/stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
-```
-
-### 9.3 Media File Guidelines
-
-**Naming Conventions:**
-- Use descriptive names: `three-little-pigs.mp3` not `story1.mp3`
-- Avoid special characters: Use `-` or `_` instead of spaces
-- Use lowercase for consistency
-
-**File Specifications:**
-- Format: MP3
-- Bitrate: 128kbps or higher
-- Sample rate: 44.1kHz
-- Alarm sounds: 15-60 seconds
-- Stories: 5-30 minutes
-
-**ID3 Tags (Optional but recommended):**
-```bash
-# Add tags using eyeD3
-sudo apt-get install eyed3
-
-eyed3 --title "The Three Little Pigs" \
-      --artist "Narrator Name" \
-      --album "Classic Tales" \
-      story.mp3
-```
-
-### 9.4 Automatic Detection
-
-The application automatically detects new files via:
-
-1. **File System Watcher** - Immediate detection via `watchdog`
-2. **Periodic Scan** - Every 60 seconds (configurable)
-3. **On Startup** - Full scan on application start
-
-**No restart needed!** Files appear in the UI within 60 seconds.
-
-### 9.5 Batch Upload Script
-
-**Create helper script on your computer:**
-
-```bash
-#!/bin/bash
-# upload-media.sh
-
-PI_HOST="pi@picuentacuentos.local"
-LOCAL_DIR="$1"
-REMOTE_TYPE="$2"  # "alarms" or "stories"
-
-if [ -z "$LOCAL_DIR" ] || [ -z "$REMOTE_TYPE" ]; then
-    echo "Usage: ./upload-media.sh <local-directory> <alarms|stories>"
-    exit 1
-fi
-
-REMOTE_DIR="/home/pi/picuentacuentos/media/$REMOTE_TYPE/"
-
-echo "Uploading $LOCAL_DIR to $PI_HOST:$REMOTE_DIR"
-rsync -av --progress "$LOCAL_DIR/" "$PI_HOST:$REMOTE_DIR"
-
-echo "Upload complete! Files will appear in app within 60 seconds."
-```
-
-**Usage:**
-```bash
-chmod +x upload-media.sh
-./upload-media.sh ~/my-stories stories
-./upload-media.sh ~/alarm-sounds alarms
-```
+| Type | Format | Duration | Bitrate |
+|------|--------|----------|---------|
+| Animal sounds | MP3 | 2–30 seconds | 128kbps+ |
+| Stories | MP3 | 5–30 minutes | 128kbps+ |
+| Images / icons | PNG | — | 480×320 max |
 
 ---
 
@@ -712,8 +560,7 @@ chmod +x upload-media.sh
 | Audio playback start | < 200ms | < 500ms |
 | JSON file read | < 50ms | < 100ms |
 | JSON file write | < 100ms | < 200ms |
-| Media scan (100 files) | < 5s | < 10s |
-| File detection | < 60s | < 120s |
+| Media catalogue load | < 100ms | < 300ms |
 
 ### 11.2 Resource Usage
 
@@ -732,18 +579,12 @@ chmod +x upload-media.sh
 - Audio playback reliability: > 99.5%
 - Data persistence: 100% (no data loss)
 - Boot success rate: > 99%
-- File detection rate: 100%
+- Media catalog load success rate: 100%
 
 ---
 
 **Document End**
 
-**Changes from v1.0:**
-- Removed USB dependencies (pyudev)
-- Added file system monitoring (watchdog)
-- Implemented SSH-based media management
-- Added Media Scanner component
-- Updated event types for media scanning
-- Simplified architecture (no USB hardware/software)
-- Enhanced security with SSH configuration
-- Added batch upload scripts and guidelines
+**Changes from v2.0:**
+- Aligned docs to JSON-driven media catalogs and removed scanning references
+- Clarified alarm time vs alarm sound screens

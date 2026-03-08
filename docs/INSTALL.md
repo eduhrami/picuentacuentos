@@ -11,7 +11,7 @@ with a 3.5" SPI LCD touchscreen in kiosk mode (no desktop environment required).
 - MicroSD card (16GB minimum, 32GB+ recommended)
 - 3.5mm speakers or headphones
 - USB-C power supply (5V 3A)
-- USB flash drive (for media updates)
+- Network access (for SSH media updates)
 
 ### Software Requirements
 - Raspberry Pi OS Lite (64-bit) — no desktop environment needed
@@ -188,6 +188,36 @@ ps aux | grep Xorg | grep -v grep    # should show Xorg running
 DISPLAY=:0 xeyes &                   # xeyes should appear on the LCD
 ```
 
+### 3f. Disable unnecessary services (boot time optimisation)
+
+Raspberry Pi OS ships with several services that serve no purpose on a dedicated
+kiosk and add 60–90 seconds to boot time. Disable them:
+
+```bash
+# cloud-init: for cloud VM provisioning — useless on a Pi, costs ~60s on the
+# critical chain (blocks plymouth-quit-wait until all cloud tasks time out)
+sudo touch /etc/cloud/cloud-init.disabled
+sudo systemctl disable cloud-init cloud-init-local cloud-init-network \
+    cloud-config cloud-final cloud-init-hotplugd.socket
+
+# LightDM: display manager that conflicts with the custom startx kiosk setup
+sudo systemctl disable lightdm.service
+
+# CUPS: print scheduler — not needed on an audio player
+sudo systemctl disable cups.service cups-browsed.service cups.path cups.socket
+
+# WayVNC: Wayland VNC server — not used (kiosk runs X11, not Wayland)
+sudo systemctl disable wayvnc-control.service
+```
+
+After applying, reboot and verify boot time with:
+```bash
+systemd-analyze time
+systemd-analyze blame --no-pager | head -20
+```
+
+Expected total boot time after these changes: **under 20 seconds**.
+
 ---
 
 ## Step 4: Install PiCuentaCuentos
@@ -212,10 +242,12 @@ pip install -r requirements.txt
 
 ```
 /home/pi/picuentacuentos/media/
-├── alarms/
+├── animal_sounds/
+│   ├── sounds.json
 │   ├── rooster.mp3
-│   └── gentle-bells.mp3
+│   └── rooster.png
 └── stories/
+    ├── stories.json
     ├── three-little-pigs.mp3
     └── goldilocks.mp3
 ```
@@ -223,12 +255,12 @@ pip install -r requirements.txt
 ### Copy files:
 
 ```bash
-cp your-alarm.mp3  /home/pi/picuentacuentos/media/alarms/
-cp your-story.mp3  /home/pi/picuentacuentos/media/stories/
+scp your-alarm.mp3 your-alarm.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+scp your-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
 
 **Recommended MP3 format:** 128kbps+, 44.1kHz stereo
-**Alarm sounds:** 15–60 seconds | **Stories:** 5–30 minutes
+**Alarm sounds:** 2–30 seconds | **Stories:** 5–30 minutes
 
 ---
 
@@ -313,22 +345,20 @@ sudo reboot
 
 ---
 
-## Updating Media via USB
+## Updating Media via SSH
 
-1. **Prepare USB drive** with this structure:
+1. **Copy files** to the media directories:
    ```
-   USB_DRIVE/
-   ├── alarms/
-   │   └── new-sound.mp3
-   └── stories/
-       └── new-story.mp3
+   scp new-sound.mp3 new-sound.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+   scp new-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
    ```
 
-2. **Insert USB** into Raspberry Pi while running
+2. **Update catalogs** (`sounds.json` and `stories.json`)
 
-3. **Wait for sync** — a notification will appear on screen when complete
-
-4. **Remove USB** safely
+3. **Restart the app**:
+   ```bash
+   sudo systemctl restart getty@tty1
+   ```
 
 ---
 
@@ -444,12 +474,13 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
 }
 ```
 
-### Disable USB auto-sync
+### Configure media catalogs
 
 ```json
 {
-  "usb": {
-    "auto_sync": false
+  "media": {
+    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   }
 }
 ```

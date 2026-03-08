@@ -79,7 +79,7 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 │  │         │                │                  │         │    │
 │  │  ┌──────┴──────┐  ┌──────┴───────┐  ┌──────┴──────┐ │    │
 │  │  │   Media     │  │    State     │  │   Config    │ │    │
-│  │  │  Scanner    │  │   Manager    │  │   Manager   │ │    │
+│  │  │  Loader     │  │   Manager    │  │   Manager   │ │    │
 │  │  └─────────────┘  └──────────────┘  └─────────────┘ │    │
 │  └──────────────────────────────────────────────────────┘    │
 └───────────────────────────────┬───────────────────────────────┘
@@ -121,10 +121,10 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
      v                                              v        v
 ┌─────────────┐                              ┌──────────┐  ┌──────────┐
 │   Alarm     │ Trigger                      │  Audio   │  │  Media   │
-│  Scheduler  ├─────────────────────────────>│  Engine  │  │ Scanner  │
+│  Scheduler  ├─────────────────────────────>│  Engine  │  │ Loader   │
 └──────┬──────┘                              └────┬─────┘  └────┬─────┘
        │                                          │             │
-       │ Check Time                               │ Play        │ Scan
+        │ Check Time                               │ Play        │ Load
        v                                          v             v
 ┌──────────────┐                          ┌────────────┐  ┌──────────┐
 │   JSON       │                          │  3.5mm     │  │   Media  │
@@ -153,8 +153,8 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 │                                                          │
 │  ┌────────────────────┐  ┌──────────────────────────┐  │
 │  │  Thread 3:         │  │  Thread 4:               │  │
-│  │  Alarm Monitor     │  │  Media Scanner           │  │
-│  │  (APScheduler)     │  │  (Periodic Scan)         │  │
+│  │  Alarm Monitor     │  │  Media Catalog Load      │  │
+│  │  (APScheduler)     │  │  (Startup)               │  │
 │  └────────────────────┘  └──────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -173,7 +173,7 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 | Audio Library | pygame | 2.5.2+ | MP3 playback |
 | Scheduler | APScheduler | 3.10.4+ | Alarm scheduling |
 | Storage | JSON files | Native | Alarm and media data |
-| File Monitoring | watchdog | 3.0.0+ | Media auto-detection |
+| Media Catalogs | JSON | Native | Media catalog loading |
 | SSH Server | OpenSSH | Native | Remote media management |
 | Audio Output | ALSA | Native | Audio routing to 3.5mm |
 | Display | X server (fbdev) | Native | Kiosk UI on LCD /dev/fb1 |
@@ -184,8 +184,6 @@ Design and implement a standalone, child-friendly audio player and alarm clock s
 kivy==2.2.1
 pygame==2.5.2
 APScheduler==3.10.4
-watchdog==3.0.0
-mutagen==1.47.0
 python-dateutil==2.8.2
 ```
 
@@ -223,7 +221,8 @@ class UIManager:
 **Screen Definitions:**
 - HomeScreen: Main menu with time and navigation
 - AlarmListScreen: Display and manage alarms
-- AlarmEditScreen: Create/edit alarm settings
+- AlarmTimeScreen: Edit alarm time and days
+- AlarmSoundScreen: Select alarm sound
 - StoryPlayerScreen: Browse and play stories
 - SettingsScreen: System configuration
 - AlarmActiveScreen: Displayed during alarm trigger
@@ -308,50 +307,16 @@ class Alarm:
 - Persist alarm state to SQLite
 - Handle daylight saving time transitions
 
-### 4.4 USB Manager (usb_manager.py)
+### 4.4 Media Loader (media_loader.py)
 
-**Responsibility:** Detect USB devices and synchronize media files
+**Responsibility:** Load media catalogs from JSON config files
 
 **Interfaces:**
 ```python
-class USBManager:
-    def __init__(self, event_bus: EventBus, media_dir: str)
-    def start_monitoring(self) -> None
-    def stop_monitoring(self) -> None
-    def sync_media(self, usb_path: str) -> SyncResult
-    def validate_usb_structure(self, usb_path: str) -> bool
-```
-
-**Expected USB Structure:**
-```
-USB_DRIVE/
-├── alarms/
-│   ├── sound1.mp3
-│   └── sound2.mp3
-└── stories/
-    ├── story1.mp3
-    └── story2.mp3
-```
-
-**Sync Process:**
-1. Detect USB insertion (udev event)
-2. Mount device (if not auto-mounted)
-3. Validate folder structure
-4. Calculate files to copy (new/modified only)
-5. Copy files with progress tracking
-6. Verify copied files (checksum optional)
-7. Update media database
-8. Emit sync complete event
-9. Safely unmount
-
-**Sync Result:**
-```python
-@dataclass
-class SyncResult:
-    success: bool
-    files_copied: int
-    files_failed: int
-    errors: List[str]
+class MediaLoader:
+    def __init__(self, sounds_config: str, stories_config: str)
+    def load_sounds(self) -> List[AnimalSound]
+    def load_stories(self) -> List[Story]
 ```
 
 ### 4.5 State Manager (state_manager.py)
@@ -377,7 +342,7 @@ AppState = {
     "sleep_timer_active": bool,
     "sleep_timer_remaining": int,  # seconds
     "volume": float,
-    "usb_sync_in_progress": bool,
+    "media_loaded": bool,
 }
 ```
 
@@ -407,11 +372,6 @@ class EventType(Enum):
     PLAYBACK_PAUSED = "audio.paused"
     PLAYBACK_COMPLETE = "audio.complete"
 
-    # USB events
-    USB_CONNECTED = "usb.connected"
-    USB_DISCONNECTED = "usb.disconnected"
-    USB_SYNC_STARTED = "usb.sync_started"
-    USB_SYNC_COMPLETE = "usb.sync_complete"
 
     # UI events
     SCREEN_CHANGED = "ui.screen_changed"
@@ -455,8 +415,7 @@ CREATE TABLE media_files (
     file_type TEXT NOT NULL,  -- 'alarm' or 'story'
     duration_seconds REAL,
     file_size_bytes INTEGER,
-    title TEXT,  -- From MP3 metadata
-    artist TEXT,
+    title TEXT,
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -508,9 +467,9 @@ CREATE INDEX idx_media_type ON media_files(file_type);
     "default_sleep_timer_minutes": 30,
     "resume_playback": true
   },
-  "usb": {
-    "auto_sync": true,
-    "media_path": "/home/pi/picuentacuentos/media"
+  "media": {
+    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   },
   "system": {
     "log_level": "INFO",
@@ -536,7 +495,8 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │   │   ├── screens/
 │   │   │   ├── home.py
 │   │   │   ├── alarm_list.py
-│   │   │   ├── alarm_edit.py
+│   │   │   ├── alarm_time.py
+│   │   │   ├── alarm_sound.py
 │   │   │   ├── story_player.py
 │   │   │   └── settings.py
 │   │   └── widgets/
@@ -554,10 +514,9 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │   │   ├── alarm_scheduler.py     # Alarm logic
 │   │   └── alarm_models.py        # Data models
 │   │
-│   ├── usb/
+│   ├── media/
 │   │   ├── __init__.py
-│   │   ├── usb_manager.py         # USB detection & sync
-│   │   └── file_sync.py           # File operations
+│   │   └── media_loader.py         # JSON catalog loader
 │   │
 │   └── database/
 │       ├── __init__.py
@@ -573,8 +532,10 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │   └── backups/                  # DB backups
 │
 ├── media/
-│   ├── alarms/                   # Alarm sound files
-│   └── stories/                  # Story files
+│   ├── animal_sounds/            # Alarm sounds + images
+│   │   └── sounds.json            # Alarm catalog
+│   └── stories/                  # Story files + icons
+│       └── stories.json           # Story catalog
 │
 ├── logs/
 │   └── app.log                   # Application logs
@@ -587,7 +548,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 ├── tests/
 │   ├── test_audio.py
 │   ├── test_alarms.py
-│   └── test_usb.py
+│   └── test_media.py
 │
 ├── requirements.txt              # Python dependencies
 ├── setup.sh                      # Installation script
@@ -869,8 +830,6 @@ def validate_media_file(file_path: str) -> bool:
 
     # Verify MP3 header (basic check)
     try:
-        from mutagen.mp3 import MP3
-        MP3(file_path)
         return True
     except:
         return False
@@ -902,7 +861,7 @@ def set_volume_safe(level: float):
 **Graceful Degradation:**
 - Missing audio file: Use default beep tone
 - Database corruption: Fallback to JSON config
-- USB sync failure: Retry with user notification
+- Media catalog load failure: Retry on next restart
 
 **Logging:**
 ```python
@@ -935,7 +894,6 @@ logging.basicConfig(
 - MicroSD card (16GB+ Class 10)
 - 3.5mm speakers or headphones
 - 5V 3A USB-C power supply
-- USB flash drive for content updates
 
 **Software:**
 - Raspberry Pi OS (Lite or Desktop)
@@ -1041,7 +999,7 @@ DISPLAY=:0 xinput_calibrator
    ├── Load configuration (JSON)
    ├── Start audio engine (pygame)
    ├── Start alarm scheduler (APScheduler)
-   ├── Start media file watcher (watchdog)
+   ├── Load media catalogs (JSON)
    ├── Initialize UI (Kivy, DISPLAY=:0)
    └── Show home screen on LCD
 6. Ready for user interaction
@@ -1059,11 +1017,9 @@ sudo systemctl restart getty@tty1
 ```
 
 **Content Updates:**
-1. Insert USB drive with media files
-2. Application auto-detects USB
-3. Sync process runs automatically
-4. Notification shows completion
-5. Remove USB drive
+1. Copy media files via SSH/SCP
+2. Update JSON catalogs
+3. Restart the app
 
 ---
 
@@ -1077,7 +1033,7 @@ sudo systemctl restart getty@tty1
 - Audio engine: 90%+
 - Alarm scheduler: 95%+
 - Database operations: 90%+
-- USB manager: 85%+
+- Media loader: 85%+
 - UI components: 70%+
 
 **Example Test Cases:**
@@ -1115,7 +1071,7 @@ def test_alarm_trigger():
 **Test Scenarios:**
 1. Complete alarm flow: Set → Trigger → Snooze → Dismiss
 2. Story playback: Browse → Select → Play → Pause → Resume
-3. USB sync: Insert → Detect → Copy → Complete
+3. Media update: Upload → Edit JSON → Restart
 4. UI navigation: Home → Alarms → Edit → Save → Home
 5. Sleep timer: Start story → Set timer → Auto-stop
 
@@ -1127,7 +1083,7 @@ def test_alarm_trigger():
 - [ ] Touch input responsive (<200ms)
 - [ ] Audio output clear through 3.5mm jack
 - [ ] Volume control functional (0-100%)
-- [ ] USB detection immediate (<2s)
+- [ ] Media catalogs load successfully on startup
 - [ ] System boots to app automatically
 - [ ] No audio dropouts during playback
 - [ ] Alarms trigger at exact time (±5s)
@@ -1159,7 +1115,7 @@ def test_alarm_trigger():
 | Touch response | <100ms | <200ms | >200ms |
 | Screen transition | <300ms | <500ms | >500ms |
 | Audio start latency | <100ms | <200ms | >200ms |
-| USB sync (100 files) | <30s | <60s | >60s |
+| Media catalog load | <100ms | <300ms | >500ms |
 | Memory usage | <500MB | <750MB | >1GB |
 | CPU usage (idle) | <10% | <20% | >30% |
 

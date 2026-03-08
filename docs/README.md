@@ -25,12 +25,11 @@ A standalone, child-friendly MP3 player and alarm clock system for Raspberry Pi 
 - Sleep timer with auto-stop
 - Resume playback from last position
 - Simple playback controls (play, pause, skip)
-- Playlist support
 
 ### 🌐 SSH Media Management (NEW!)
 - Upload media files from any computer on your network
 - No USB drives needed!
-- Automatic file detection within 60 seconds
+- Media catalogs loaded at startup (edit JSON + restart)
 - Remote administration via SCP/SFTP
 - Secure, administrator-controlled
 
@@ -82,13 +81,14 @@ From your computer:
 # Upload a bedtime story
 scp my-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
-# Upload an alarm sound
-scp alarm-sound.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/alarms/
+# Upload an alarm sound + image
+scp alarm-sound.mp3 alarm-sound.png \
+  pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
 ```
 
 ### 4. Start Using!
 
-Files appear in the app within 60 seconds. No restart needed!
+Files appear in the app after editing the JSON catalogs and restarting the app.
 
 ---
 
@@ -134,8 +134,8 @@ See [MEDIA_MANAGEMENT.md](MEDIA_MANAGEMENT.md) for complete guide.
 │  Alarm Scheduler  │  Audio Engine       │
 │  (APScheduler)    │  (pygame)           │
 ├─────────────────────────────────────────┤
-│  Media Scanner    │  State Manager      │
-│  (watchdog)       │  (Event Bus)        │
+│  Media Loader     │  State Manager      │
+│  (JSON catalogs)  │  (Event Bus)        │
 ├─────────────────────────────────────────┤
 │          JSON Storage Layer             │
 │  (alarms, media, settings, playback)    │
@@ -158,7 +158,7 @@ picuentacuentos/
 │   ├── storage/             # JSON storage layer
 │   ├── audio/               # Audio playback engine
 │   ├── scheduling/          # Alarm scheduler
-│   ├── media/               # Media scanner & file watcher
+│   ├── media/               # Media catalogs (JSON)
 │   ├── ui/                  # Kivy UI components
 │   └── main.py              # Application entry point
 │
@@ -166,8 +166,10 @@ picuentacuentos/
 ├── data/                    # Data storage (JSON)
 ├── docs/                    # Project documentation
 ├── media/                   # Media files (SSH upload target)
-│   ├── alarms/             # Alarm sound files
-│   └── stories/            # Story MP3 files
+│   ├── animal_sounds/      # Alarm sounds + images
+│   │   └── sounds.json     # Alarm catalog
+│   └── stories/            # Story MP3 files + icons
+│       └── stories.json    # Story catalog
 ├── mockups/                # UI mockups (HTML)
 └── setup.sh                # Installation script
 ```
@@ -198,8 +200,8 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
     "resume_playback": true
   },
   "media": {
-    "auto_scan": true,
-    "scan_interval_seconds": 60
+    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   }
 }
 ```
@@ -236,7 +238,8 @@ firefox mockups/index.html
 Screens included:
 - Home Screen - Live clock and navigation
 - Alarm List - View and toggle alarms
-- Alarm Editor - Create/edit with time picker
+- Alarm Time - Set time and days
+- Alarm Sound - Pick alarm sound
 - Story Player - Playback controls and library
 - Alarm Trigger - Full-screen notification
 - Settings - System configuration
@@ -277,7 +280,7 @@ ping picuentacuentos.local
 
 ### Files Not Appearing
 
-1. Wait 60 seconds for automatic scan
+1. Confirm the JSON catalogs were updated
 2. Check file is .mp3 format
 3. Verify upload succeeded:
    ```bash
@@ -329,8 +332,7 @@ ssh pi@picuentacuentos.local "amixer -c 1 sset PCM 85%"
 | **UI Framework** | Kivy | 2.2.1 |
 | **Audio** | pygame | 2.5.2 |
 | **Scheduling** | APScheduler | 3.10.4 |
-| **File Monitoring** | watchdog | 3.0.0 |
-| **Metadata** | mutagen | 1.47.0 |
+| **Media Catalogs** | JSON | Native |
 | **Storage** | JSON | Native |
 | **Media Transfer** | SSH/SCP | OpenSSH |
 
@@ -343,13 +345,13 @@ ssh pi@picuentacuentos.local "amixer -c 1 sset PCM 85%"
 ✅ **SSH-based media management**
 - Upload files from any computer on network
 - No USB drives required
-- Automatic file detection within 60 seconds
+- JSON-based media catalogs loaded at startup
 - Remote administration
 
-✅ **File system monitoring**
-- Real-time detection of new files
-- Automatic library updates
-- No manual refresh needed
+✅ **Media catalogs**
+- Explicit JSON catalogs for alarm sounds and stories
+- Predictable media lists
+- No background scanning or file watching
 
 ✅ **Simplified architecture**
 - Removed USB hardware dependencies
@@ -378,8 +380,8 @@ See [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) for implementation 
 
 ### Version 2.0 (Current)
 - ✅ SSH-based media management
-- ✅ Automatic file detection
-- ✅ File system monitoring
+- ✅ JSON media catalogs loaded at startup
+- ✅ Media catalogs (no background scanning)
 - ✅ Simplified architecture
 
 ### Version 2.1 (Planned)
