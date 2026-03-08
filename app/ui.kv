@@ -1,0 +1,416 @@
+#:kivy 2.2.1
+
+<Wallpaper@Widget>:
+    canvas.before:
+        Rectangle:
+            source: app.wallpaper_path if app.wallpaper_path else ""
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: (0.96, 0.96, 0.96, 0.4)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<PCTLabel@Label>:
+    color: 0.12, 0.12, 0.12, 1
+    text_size: self.size
+    halign: "center"
+    valign: "middle"
+
+<IconButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0.4, 0.5, 0.9, 1
+    color: 1, 1, 1, 1
+    font_size: "38sp"
+    size_hint: 1, 1
+    border: 12, 12, 12, 12
+
+<Pill@Label>:
+    canvas.before:
+        Color:
+            rgba: 1, 0.95, 0.85, 0.9
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [24,]
+    color: 0.9, 0.45, 0.0, 1
+    padding: 16, 8
+
+<HomeScreen>:
+    name: "home"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            padding: 20
+            spacing: 12
+            size_hint: 1, 1
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: "110dp"
+                PCTLabel:
+                    id: time_label
+                    text: "07:35"
+                    font_size: "52sp"
+                    bold: True
+                PCTLabel:
+                    id: date_label
+                    text: "Lun, 10 Mar"
+                    font_size: "18sp"
+                    color: 0.4, 0.4, 0.4, 1
+            Widget:
+            Pill:
+                text: "⏰ Proxima alarma: 06:30"
+                size_hint_y: None
+                height: "38dp"
+                halign: "center"
+                valign: "middle"
+            Widget:
+            GridLayout:
+                cols: 2
+                spacing: 16
+                size_hint_y: 1
+                IconButton:
+                    text: "📖"
+                    on_release: root.manager.current = "story_list"
+                IconButton:
+                    text: "🔔"
+                    on_release: root.manager.current = "alarm_list"
+
+<StoryCard>:
+    orientation: "vertical"
+    padding: 8
+    spacing: 6
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 0.9
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [14,]
+    on_release: app.open_story(self.story)
+    AsyncImage:
+        source: root.story.get("icon_path", "")
+        allow_stretch: True
+        keep_ratio: True
+    Label:
+        text: root.story.get("title", "")
+        font_size: "14sp"
+        color: 0.1, 0.1, 0.1, 1
+
+<StoryImage@AsyncImage>:
+    allow_stretch: True
+    keep_ratio: True
+
+<SoundImage@AsyncImage>:
+    allow_stretch: True
+    keep_ratio: True
+
+<SoundCard>:
+    orientation: "vertical"
+    padding: 6
+    spacing: 4
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 0.9
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [12,]
+    on_release: app.choose_alarm_sound(self.sound)
+    SoundImage:
+        source: root.sound.get("image_path", "")
+    Label:
+        text: root.sound.get("label", "")
+        font_size: "12sp"
+        color: 0.1, 0.1, 0.1, 1
+
+<AlarmCard>:
+    orientation: "horizontal"
+    padding: 12
+    spacing: 10
+    size_hint_y: None
+    height: "52dp"
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 0.9
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [12,]
+    on_release: app.root.current = "alarm_time"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: root.alarm.get("time", "")
+            font_size: "20sp"
+            color: 0.1, 0.1, 0.1, 1
+        Label:
+            text: root.alarm.get("days", "") + "  •  " + root.alarm.get("sound", "")
+            font_size: "12sp"
+            color: 0.4, 0.4, 0.4, 1
+
+<StoryListScreen>:
+    name: "story_list"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: 1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                padding: 12, 10
+                spacing: 10
+                Button:
+                    text: "←"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "home"
+                Label:
+                    text: "CUENTOS"
+                    bold: True
+                    font_size: "20sp"
+                    color: 0.1, 0.1, 0.1, 1
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+            ScrollView:
+                GridLayout:
+                    id: story_grid
+                    cols: 2
+                    spacing: 12
+                    padding: 12
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: "150dp"
+                    row_force_default: True
+
+<StoryPlayerScreen>:
+    name: "story_player"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            padding: 16
+            spacing: 8
+            size_hint: 1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                spacing: 10
+                Button:
+                    text: "←"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "story_list"
+                Label:
+                    text: "REPRODUCIENDO"
+                    bold: True
+                    font_size: "18sp"
+                    color: 0.1, 0.1, 0.1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "90dp"
+                spacing: 12
+                StoryImage:
+                    source: root.story_icon
+                    size_hint_x: None
+                    width: "90dp"
+                BoxLayout:
+                    orientation: "vertical"
+                    Label:
+                        text: root.story_title
+                        font_size: "20sp"
+                        color: 0.1, 0.1, 0.1, 1
+                    Label:
+                        text: "Fábula clásica"
+                        font_size: "12sp"
+                        color: 0.5, 0.5, 0.5, 1
+            ProgressBar:
+                max: 100
+                value: 35
+                size_hint_y: None
+                height: "14dp"
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                spacing: 18
+                Button:
+                    text: "⏮️"
+                    font_size: "26sp"
+                Button:
+                    text: root.play_icon
+                    font_size: "26sp"
+                    on_release: root.toggle_play()
+                Button:
+                    text: "⏭️"
+                    font_size: "26sp"
+            Button:
+                text: "⏲️ Sueño: 30 min"
+                size_hint_y: None
+                height: "48dp"
+
+<AlarmListScreen>:
+    name: "alarm_list"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: 1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                spacing: 10
+                Button:
+                    text: "←"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "home"
+                Label:
+                    text: "ALARMS"
+                    bold: True
+                    font_size: "20sp"
+                    color: 0.1, 0.1, 0.1, 1
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                Button:
+                    text: "+"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "alarm_time"
+            ScrollView:
+                GridLayout:
+                    id: alarm_list_box
+                    cols: 1
+                    spacing: 10
+                    padding: 12
+                    size_hint_y: None
+                    height: self.minimum_height
+
+<AlarmTimeScreen>:
+    name: "alarm_time"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            padding: 12
+            spacing: 10
+            size_hint: 1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                spacing: 10
+                Button:
+                    text: "←"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "alarm_list"
+                Label:
+                    text: "Alarm Time"
+                    bold: True
+                    font_size: "20sp"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                Button:
+                    text: "Next"
+                    size_hint_x: None
+                    width: "80dp"
+                    on_release: root.manager.current = "alarm_sound"
+            Label:
+                text: "06:30"
+                font_size: "48sp"
+            GridLayout:
+                cols: 7
+                size_hint_y: None
+                height: "50dp"
+                spacing: 6
+                Button:
+                    text: "L"
+                Button:
+                    text: "M"
+                Button:
+                    text: "X"
+                Button:
+                    text: "J"
+                Button:
+                    text: "V"
+                Button:
+                    text: "S"
+                Button:
+                    text: "D"
+            BoxLayout:
+                size_hint_y: None
+                height: "50dp"
+                spacing: 10
+                Label:
+                    text: "Sonido"
+                Button:
+                    text: "🐓 " + root.selected_sound_label
+                    on_release: root.manager.current = "alarm_sound"
+
+<AlarmSoundScreen>:
+    name: "alarm_sound"
+    FloatLayout:
+        Wallpaper:
+            size_hint: 1, 1
+            pos: 0, 0
+        BoxLayout:
+            orientation: "vertical"
+            padding: 12
+            spacing: 8
+            size_hint: 1, 1
+            BoxLayout:
+                size_hint_y: None
+                height: "60dp"
+                spacing: 10
+                Button:
+                    text: "←"
+                    size_hint_x: None
+                    width: "60dp"
+                    on_release: root.manager.current = "alarm_time"
+                Label:
+                    text: "Alarm Sound"
+                    bold: True
+                    font_size: "20sp"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                Button:
+                    text: "Save"
+                    size_hint_x: None
+                    width: "80dp"
+                    on_release: root.manager.current = "alarm_list"
+        ScrollView:
+            GridLayout:
+                id: sound_grid
+                cols: 3
+                spacing: 8
+                padding: 8
+                size_hint_y: None
+                height: self.minimum_height
+                row_default_height: "90dp"
+                row_force_default: True
+
+RootScreenManager:
+    HomeScreen:
+    StoryListScreen:
+    StoryPlayerScreen:
+    AlarmListScreen:
+    AlarmTimeScreen:
+    AlarmSoundScreen:
