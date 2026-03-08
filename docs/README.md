@@ -420,6 +420,22 @@ Contributions welcome! Please:
 
 ---
 
+## 🎨 Icon Credits
+
+<a href="https://www.flaticon.com/free-icons/book" title="book icons">Book icons created by Good Ware - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/pause-button" title="pause button icons">Pause button icons created by inkubators - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/arrows" title="arrows icons">Arrows icons created by gravisio - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/next" title="next icons">Next icons created by Arkinasi - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/home-button" title="home button icons">Home button icons created by Freepik - Flaticon</a>
+
+<a href="https://www.flaticon.com/free-icons/play" title="play icons">Play icons created by Freepik - Flaticon</a>
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License.

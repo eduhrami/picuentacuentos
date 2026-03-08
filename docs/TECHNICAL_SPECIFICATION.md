@@ -108,7 +108,7 @@ Screens
 - AlarmSoundScreen: sound picker from sounds.json
 - StoryLibraryScreen: list stories by folder, tap to open NowPlayingScreen
 - StoryLibraryScreen: list stories with cover images, tap to open NowPlayingScreen
-- NowPlayingScreen: title, story image, large play/pause icon, next or previous, sleep timer button
+- NowPlayingScreen: title, story image, 72px play/pause icon, next or previous
 - AlarmRingingScreen: stop and snooze buttons
 
 Primary flows
@@ -122,6 +122,11 @@ UI implementation note
   stays inside the button bounds.
 - For header navigation on first-level list screens, use a compact icon button
   (48px container, 32px icon) aligned to the top-left.
+- For icon-only buttons (player controls), use a single custom widget with a
+  fixed 72px icon inside the button container to avoid layout drift.
+- For floating controls (e.g., player back/home), use a compact icon button pair
+  anchored to the top-left with explicit size and `pos_hint` so they remain
+  visible regardless of layout flow.
 
 ### 0.7 Out of Scope v2.0
 
