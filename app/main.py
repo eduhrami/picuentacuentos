@@ -24,6 +24,10 @@ from app.constants import (
     BACK_ICON,
     FALLBACK_WALLPAPER,
     HOME_ICON,
+    NEXT_ICON,
+    PAUSE_ICON,
+    PLAY_ICON,
+    PREV_ICON,
     SOUNDS_JSON,
     STORIES_JSON,
     STORY_ICON,
@@ -121,17 +125,23 @@ class StoryPlayerScreen(Screen):
     story_title = StringProperty("")
     story_icon = StringProperty("")
     is_playing = False
-    play_icon = StringProperty("⏸️")
+    play_icon = StringProperty("")
 
     def set_story(self, story: dict):
         self.story_title = story.get("title", "")
         self.story_icon = story.get("icon_path", "")
         self.is_playing = True
-        self.play_icon = "⏸️"
+        self._update_play_icon()
 
     def toggle_play(self):
         self.is_playing = not self.is_playing
-        self.play_icon = "⏸️" if self.is_playing else "▶️"
+        self._update_play_icon()
+
+    def _update_play_icon(self):
+        if self.is_playing:
+            self.play_icon = str(PAUSE_ICON.resolve()) if PAUSE_ICON.exists() else ""
+        else:
+            self.play_icon = str(PLAY_ICON.resolve()) if PLAY_ICON.exists() else ""
 
 
 class AlarmListScreen(Screen):
@@ -217,6 +227,10 @@ class PiCuentaCuentosApp(App):
     alarm_icon_path = StringProperty("")
     back_icon_path = StringProperty("")
     home_icon_path = StringProperty("")
+    prev_icon_path = StringProperty("")
+    next_icon_path = StringProperty("")
+    play_icon_path = StringProperty("")
+    pause_icon_path = StringProperty("")
 
     def build(self):
         Window.clearcolor = (0.95, 0.95, 0.95, 1)
@@ -261,6 +275,26 @@ class PiCuentaCuentosApp(App):
             self.home_icon_path = str(HOME_ICON.resolve())
         else:
             self.home_icon_path = ""
+
+        if PREV_ICON.exists():
+            self.prev_icon_path = str(PREV_ICON.resolve())
+        else:
+            self.prev_icon_path = ""
+
+        if NEXT_ICON.exists():
+            self.next_icon_path = str(NEXT_ICON.resolve())
+        else:
+            self.next_icon_path = ""
+
+        if PLAY_ICON.exists():
+            self.play_icon_path = str(PLAY_ICON.resolve())
+        else:
+            self.play_icon_path = ""
+
+        if PAUSE_ICON.exists():
+            self.pause_icon_path = str(PAUSE_ICON.resolve())
+        else:
+            self.pause_icon_path = ""
 
     def open_story(self, story: dict):
         player = self.root.get_screen("story_player")
