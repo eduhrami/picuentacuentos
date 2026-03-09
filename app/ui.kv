@@ -439,7 +439,7 @@
                     valign: "middle"
                 SmallIconButton:
                     icon_source: app.add_icon_path
-                    on_release: root.manager.current = "alarm_time"
+                    on_release: app.create_alarm()
             ScrollView:
                 GridLayout:
                     id: alarm_list_box
@@ -459,21 +459,21 @@
             pos: 0, 0
         BoxLayout:
             orientation: "vertical"
-            padding: 12
-            spacing: 10
+            padding: 8
+            spacing: 4
             size_hint: 1, 1
             BoxLayout:
                 size_hint_y: None
-                height: "60dp"
-                padding: 12, 10
-                spacing: 10
+                height: "48dp"
+                padding: 8, 4
+                spacing: 8
                 SmallIconButton:
                     icon_source: app.back_icon_path
                     on_release: root.manager.current = "alarm_list"
                 Label:
-                    text: "EDITAR ALARMA"
+                    text: root.screen_title
                     bold: True
-                    font_size: "20sp"
+                    font_size: "18sp"
                     color: 0.1, 0.1, 0.1, 1
                     text_size: self.size
                     halign: "center"
@@ -481,15 +481,74 @@
                 Widget:
                     size_hint_x: None
                     width: "32dp"
-            Label:
-                text: root.alarm_time
-                font_size: "48sp"
-                color: 0.1, 0.1, 0.1, 1
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: "80dp"
+                spacing: 8
+                padding: 20, 0
+                # Hour picker
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 2
+                    Button:
+                        text: "+"
+                        font_size: "20sp"
+                        size_hint_y: 0.25
+                        background_normal: ""
+                        background_color: 0.85, 0.85, 0.85, 1
+                        color: 0.2, 0.2, 0.2, 1
+                        on_release: root.increment_hour()
+                    Label:
+                        text: "{:02d}".format(int(root.hour))
+                        font_size: "36sp"
+                        color: 0.1, 0.1, 0.1, 1
+                        size_hint_y: 0.5
+                    Button:
+                        text: "-"
+                        font_size: "20sp"
+                        size_hint_y: 0.25
+                        background_normal: ""
+                        background_color: 0.85, 0.85, 0.85, 1
+                        color: 0.2, 0.2, 0.2, 1
+                        on_release: root.decrement_hour()
+                # Colon separator
+                Label:
+                    text: ":"
+                    font_size: "36sp"
+                    color: 0.1, 0.1, 0.1, 1
+                    size_hint_x: None
+                    width: "20dp"
+                # Minute picker
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 2
+                    Button:
+                        text: "+"
+                        font_size: "20sp"
+                        size_hint_y: 0.25
+                        background_normal: ""
+                        background_color: 0.85, 0.85, 0.85, 1
+                        color: 0.2, 0.2, 0.2, 1
+                        on_release: root.increment_minute()
+                    Label:
+                        text: "{:02d}".format(int(root.minute))
+                        font_size: "36sp"
+                        color: 0.1, 0.1, 0.1, 1
+                        size_hint_y: 0.5
+                    Button:
+                        text: "-"
+                        font_size: "20sp"
+                        size_hint_y: 0.25
+                        background_normal: ""
+                        background_color: 0.85, 0.85, 0.85, 1
+                        color: 0.2, 0.2, 0.2, 1
+                        on_release: root.decrement_minute()
             GridLayout:
                 cols: 7
                 size_hint_y: None
-                height: "50dp"
-                spacing: 6
+                height: "44dp"
+                spacing: 4
                 DayButton:
                     text: "L"
                     day_id: "mon"
@@ -527,8 +586,8 @@
                     on_release: root.toggle_day("sun")
             BoxLayout:
                 size_hint_y: None
-                height: "50dp"
-                spacing: 10
+                height: "40dp"
+                spacing: 8
                 Label:
                     text: "Sonido"
                     color: 0.1, 0.1, 0.1, 1
@@ -540,7 +599,7 @@
             Button:
                 text: "GUARDAR"
                 size_hint_y: None
-                height: "50dp"
+                height: "44dp"
                 background_normal: ""
                 background_color: 0.32, 0.78, 0.47, 1
                 color: 1, 1, 1, 1

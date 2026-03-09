@@ -15,7 +15,7 @@ from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.logger import Logger
 from kivy.factory import Factory
-from kivy.properties import DictProperty, ListProperty, StringProperty
+from kivy.properties import BooleanProperty, DictProperty, ListProperty, NumericProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -296,17 +296,62 @@ class AlarmListScreen(Screen):
 class AlarmTimeScreen(Screen):
     selected_sound_label = StringProperty("Gallo")
     selected_sound_id = StringProperty("rooster")
-    alarm_time = StringProperty("06:30")
     alarm_id = StringProperty("")
     selected_days = ListProperty([])
+    hour = NumericProperty(6)
+    minute = NumericProperty(30)
+    is_new_alarm = BooleanProperty(False)
+    screen_title = StringProperty("EDITAR ALARMA")
+
+    @property
+    def alarm_time(self):
+        """Format hour:minute as HH:MM string."""
+        return f"{self.hour:02d}:{self.minute:02d}"
 
     def set_alarm(self, alarm: dict):
         """Set the alarm to edit."""
+        self.is_new_alarm = False
+        self.screen_title = "EDITAR ALARMA"
         self.alarm_id = alarm.get("id", "")
-        self.alarm_time = alarm.get("time", "06:30")
+        time_str = alarm.get("time", "06:30")
+        try:
+            parts = time_str.split(":")
+            self.hour = int(parts[0])
+            self.minute = int(parts[1])
+        except (ValueError, IndexError):
+            self.hour = 6
+            self.minute = 30
         self.selected_sound_id = alarm.get("sound_id", "rooster")
         self.selected_sound_label = alarm.get("sound", "Gallo")
         self.selected_days = list(alarm.get("days_raw", []))
+
+    def reset_for_new_alarm(self):
+        """Reset the screen for creating a new alarm."""
+        import uuid
+        self.is_new_alarm = True
+        self.screen_title = "CREAR ALARMA"
+        self.alarm_id = str(uuid.uuid4())[:8]
+        self.hour = 7
+        self.minute = 0
+        self.selected_sound_id = "rooster"
+        self.selected_sound_label = "Gallo"
+        self.selected_days = ["mon", "tue", "wed", "thu", "fri"]
+
+    def increment_hour(self):
+        """Increment hour with wraparound."""
+        self.hour = (self.hour + 1) % 24
+
+    def decrement_hour(self):
+        """Decrement hour with wraparound."""
+        self.hour = (self.hour - 1) % 24
+
+    def increment_minute(self):
+        """Increment minute with wraparound."""
+        self.minute = (self.minute + 1) % 60
+
+    def decrement_minute(self):
+        """Decrement minute with wraparound."""
+        self.minute = (self.minute - 1) % 60
 
     def toggle_day(self, day_id: str):
         """Toggle a day on/off."""
@@ -334,20 +379,35 @@ class AlarmTimeScreen(Screen):
                 with open(ALARMS_JSON, "r") as f:
                     alarms_data = json.load(f)
             
-            # Find and update the alarm
             alarms = alarms_data.get("alarms", [])
-            for alarm in alarms:
-                if alarm.get("id") == self.alarm_id:
-                    alarm["time"] = self.alarm_time
-                    alarm["days"] = self.selected_days
-                    alarm["sound_id"] = self.selected_sound_id
-                    break
+            
+            if self.is_new_alarm:
+                # Create new alarm
+                new_alarm = {
+                    "id": self.alarm_id,
+                    "time": self.alarm_time,
+                    "days": list(self.selected_days),
+                    "sound_id": self.selected_sound_id,
+                    "enabled": True,
+                }
+                alarms.append(new_alarm)
+                Logger.info(f"AlarmTimeScreen: Created alarm {self.alarm_id}")
+            else:
+                # Update existing alarm
+                for alarm in alarms:
+                    if alarm.get("id") == self.alarm_id:
+                        alarm["time"] = self.alarm_time
+                        alarm["days"] = list(self.selected_days)
+                        alarm["sound_id"] = self.selected_sound_id
+                        break
+                Logger.info(f"AlarmTimeScreen: Updated alarm {self.alarm_id}")
+            
+            alarms_data["alarms"] = alarms
             
             # Save back to file
             with open(ALARMS_JSON, "w") as f:
                 json.dump(alarms_data, f, indent=2)
             
-            Logger.info(f"AlarmTimeScreen: Saved alarm {self.alarm_id}")
             return True
         except Exception:
             Logger.exception("AlarmTimeScreen: Failed to save alarm")
@@ -509,6 +569,12 @@ class PiCuentaCuentosApp(App):
         """Open the alarm editor with the selected alarm."""
         alarm_time_screen = self.root.get_screen("alarm_time")
         alarm_time_screen.set_alarm(alarm)
+        self.root.current = "alarm_time"
+
+    def create_alarm(self):
+        """Open the alarm editor for creating a new alarm."""
+        alarm_time_screen = self.root.get_screen("alarm_time")
+        alarm_time_screen.reset_for_new_alarm()
         self.root.current = "alarm_time"
 
     def choose_alarm_sound(self, sound: dict):
