@@ -81,6 +81,16 @@
             allow_stretch: True
             keep_ratio: True
 
+<DayButton@Button>:
+    day_id: ""
+    is_selected: False
+    background_normal: ""
+    background_down: ""
+    background_color: (0.32, 0.78, 0.47, 1) if self.is_selected else (0.85, 0.85, 0.85, 1)
+    color: (1, 1, 1, 1) if self.is_selected else (0.3, 0.3, 0.3, 1)
+    font_size: "16sp"
+    bold: True
+
 <IconOnlyButton@ButtonBehavior+BoxLayout>:
     icon_source: ""
     bg_color: 0.95, 0.95, 0.95, 1
@@ -221,6 +231,10 @@
     orientation: "vertical"
     padding: 6
     spacing: 4
+    size_hint_y: None
+    height: "110dp"
+    size_hint_x: None
+    width: "140dp"
     canvas.before:
         Color:
             rgba: 1, 1, 1, 0.9
@@ -228,7 +242,7 @@
             pos: self.pos
             size: self.size
             radius: [12,]
-    on_release: app.choose_alarm_sound(self.sound)
+    on_release: app.select_alarm_sound(self.sound)
     SoundImage:
         source: root.sound.get("image_path", "")
     Label:
@@ -236,12 +250,18 @@
         font_size: "12sp"
         color: 0.1, 0.1, 0.1, 1
 
+<SoundCardSelected>:
+    canvas.after:
+        Color:
+            rgba: 0.32, 0.78, 0.47, 0.8
+        Line:
+            width: 2
+            rounded_rectangle: (self.x + 1, self.y + 1, self.width - 2, self.height - 2, 12, 12, 12, 12)
+
 <AlarmCard>:
-    orientation: "horizontal"
-    padding: 12
-    spacing: 10
-    size_hint_y: None
-    height: "52dp"
+    orientation: "vertical"
+    padding: 8
+    spacing: 4
     canvas.before:
         Color:
             rgba: 1, 1, 1, 0.9
@@ -249,17 +269,26 @@
             pos: self.pos
             size: self.size
             radius: [12,]
-    on_release: app.root.current = "alarm_time"
-    BoxLayout:
-        orientation: "vertical"
-        Label:
-            text: root.alarm.get("time", "")
-            font_size: "20sp"
-            color: 0.1, 0.1, 0.1, 1
-        Label:
-            text: root.alarm.get("days", "") + "  •  " + root.alarm.get("sound", "")
-            font_size: "12sp"
-            color: 0.4, 0.4, 0.4, 1
+    on_release: app.edit_alarm(self.alarm)
+    Label:
+        text: root.alarm.get("time", "")
+        font_size: "28sp"
+        bold: True
+        color: 0.1, 0.1, 0.1, 1
+        size_hint_y: None
+        height: "40dp"
+    Label:
+        text: root.alarm.get("days", "")
+        font_size: "12sp"
+        color: 0.4, 0.4, 0.4, 1
+        size_hint_y: None
+        height: "18dp"
+    Label:
+        text: root.alarm.get("sound", "")
+        font_size: "11sp"
+        color: 0.5, 0.5, 0.5, 1
+        size_hint_y: None
+        height: "16dp"
 
 <StoryListScreen>:
     name: "story_list"
@@ -375,11 +404,13 @@
                     row_force_default: True
                     IconOnlyButton:
                         icon_source: app.prev_icon_path
+                        on_release: root.prev_story()
                     IconOnlyButton:
                         icon_source: root.play_icon
                         on_release: root.toggle_play()
                     IconOnlyButton:
                         icon_source: app.next_icon_path
+                        on_release: root.next_story()
 
 <AlarmListScreen>:
     name: "alarm_list"
@@ -393,39 +424,32 @@
             BoxLayout:
                 size_hint_y: None
                 height: "60dp"
+                padding: 12, 10
                 spacing: 10
-                Button:
-                    background_normal: ""
-                    background_down: ""
-                    background_color: 0.95, 0.95, 0.95, 1
-                    size_hint_x: None
-                    width: "60dp"
+                SmallIconButton:
+                    icon_source: app.home_icon_path
                     on_release: root.manager.current = "home"
-                    Image:
-                        source: app.home_icon_path
-                        allow_stretch: True
-                        keep_ratio: True
                 Label:
-                    text: "ALARMS"
+                    text: "ALARMAS"
                     bold: True
                     font_size: "20sp"
                     color: 0.1, 0.1, 0.1, 1
                     text_size: self.size
                     halign: "center"
                     valign: "middle"
-                Button:
-                    text: "+"
-                    size_hint_x: None
-                    width: "60dp"
+                SmallIconButton:
+                    icon_source: app.add_icon_path
                     on_release: root.manager.current = "alarm_time"
             ScrollView:
                 GridLayout:
                     id: alarm_list_box
-                    cols: 1
-                    spacing: 10
+                    cols: 2
+                    spacing: 12
                     padding: 12
                     size_hint_y: None
                     height: self.minimum_height
+                    row_default_height: "100dp"
+                    row_force_default: True
 
 <AlarmTimeScreen>:
     name: "alarm_time"
@@ -441,61 +465,87 @@
             BoxLayout:
                 size_hint_y: None
                 height: "60dp"
+                padding: 12, 10
                 spacing: 10
-                Button:
-                    background_normal: ""
-                    background_down: ""
-                    background_color: 0.95, 0.95, 0.95, 1
-                    size_hint_x: None
-                    width: "60dp"
+                SmallIconButton:
+                    icon_source: app.back_icon_path
                     on_release: root.manager.current = "alarm_list"
-                    Image:
-                        source: app.back_icon_path
-                        allow_stretch: True
-                        keep_ratio: True
                 Label:
-                    text: "Alarm Time"
+                    text: "EDITAR ALARMA"
                     bold: True
                     font_size: "20sp"
+                    color: 0.1, 0.1, 0.1, 1
                     text_size: self.size
                     halign: "center"
                     valign: "middle"
-                Button:
-                    text: "Next"
+                Widget:
                     size_hint_x: None
-                    width: "80dp"
-                    on_release: root.manager.current = "alarm_sound"
+                    width: "32dp"
             Label:
-                text: "06:30"
+                text: root.alarm_time
                 font_size: "48sp"
+                color: 0.1, 0.1, 0.1, 1
             GridLayout:
                 cols: 7
                 size_hint_y: None
                 height: "50dp"
                 spacing: 6
-                Button:
+                DayButton:
                     text: "L"
-                Button:
+                    day_id: "mon"
+                    is_selected: "mon" in root.selected_days
+                    on_release: root.toggle_day("mon")
+                DayButton:
                     text: "M"
-                Button:
+                    day_id: "tue"
+                    is_selected: "tue" in root.selected_days
+                    on_release: root.toggle_day("tue")
+                DayButton:
                     text: "X"
-                Button:
+                    day_id: "wed"
+                    is_selected: "wed" in root.selected_days
+                    on_release: root.toggle_day("wed")
+                DayButton:
                     text: "J"
-                Button:
+                    day_id: "thu"
+                    is_selected: "thu" in root.selected_days
+                    on_release: root.toggle_day("thu")
+                DayButton:
                     text: "V"
-                Button:
+                    day_id: "fri"
+                    is_selected: "fri" in root.selected_days
+                    on_release: root.toggle_day("fri")
+                DayButton:
                     text: "S"
-                Button:
+                    day_id: "sat"
+                    is_selected: "sat" in root.selected_days
+                    on_release: root.toggle_day("sat")
+                DayButton:
                     text: "D"
+                    day_id: "sun"
+                    is_selected: "sun" in root.selected_days
+                    on_release: root.toggle_day("sun")
             BoxLayout:
                 size_hint_y: None
                 height: "50dp"
                 spacing: 10
                 Label:
                     text: "Sonido"
+                    color: 0.1, 0.1, 0.1, 1
                 Button:
-                    text: "🐓 " + root.selected_sound_label
+                    text: root.selected_sound_label
                     on_release: root.manager.current = "alarm_sound"
+            Widget:
+                size_hint_y: 1
+            Button:
+                text: "GUARDAR"
+                size_hint_y: None
+                height: "50dp"
+                background_normal: ""
+                background_color: 0.32, 0.78, 0.47, 1
+                color: 1, 1, 1, 1
+                bold: True
+                on_release: root.save_alarm(); root.manager.current = "alarm_list"
 
 <AlarmSoundScreen>:
     name: "alarm_sound"
@@ -511,18 +561,18 @@
             BoxLayout:
                 size_hint_y: None
                 height: "60dp"
+                padding: 12, 10
                 spacing: 10
-                Button:
-                    background_normal: ""
-                    background_down: ""
-                    background_color: 0.95, 0.95, 0.95, 1
+                BoxLayout:
                     size_hint_x: None
-                    width: "60dp"
-                    on_release: root.manager.current = "alarm_time"
-                    Image:
-                        source: app.back_icon_path
-                        allow_stretch: True
-                        keep_ratio: True
+                    width: "110dp"
+                    spacing: 6
+                    SmallIconButton:
+                        icon_source: app.back_icon_path
+                        on_release: app.stop_alarm_preview(); root.manager.current = "alarm_time"
+                    SmallIconButton:
+                        icon_source: app.home_icon_path
+                        on_release: app.stop_alarm_preview(); root.manager.current = "home"
                 Label:
                     text: "Alarm Sound"
                     bold: True
@@ -530,21 +580,24 @@
                     text_size: self.size
                     halign: "center"
                     valign: "middle"
-                Button:
-                    text: "Save"
+                Widget:
                     size_hint_x: None
-                    width: "80dp"
-                    on_release: root.manager.current = "alarm_list"
-            ScrollView:
+                    width: "24dp"
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
                 GridLayout:
                     id: sound_grid
                     cols: 3
-                    spacing: 8
+                    spacing: 10
                     padding: 8
-                    size_hint_y: None
+                    size_hint: None, None
+                    width: self.minimum_width
                     height: self.minimum_height
-                    row_default_height: "90dp"
+                    col_force_default: True
+                    col_default_width: "140dp"
                     row_force_default: True
+                    row_default_height: "110dp"
 
 <AlarmRingingScreen>:
     name: "alarm_ringing"

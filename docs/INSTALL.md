@@ -249,16 +249,16 @@ pip install kivy
 
 ```
 /home/pi/picuentacuentos/media/
-├── animal_sounds/
-│   ├── sounds.json
-│   ├── rooster.mp3
-│   └── rooster.png
 └── stories/
     ├── stories.json
     ├── three-little-pigs.mp3
     └── goldilocks.mp3
 
 /home/pi/picuentacuentos/assets/
+├── animal_sounds/
+│   ├── sounds.json
+│   ├── rooster.mp3
+│   └── rooster.png
 └── icons/
     ├── book.png        # Home Stories icon (128px)
     ├── bell.png        # Home Alarms icon (128px)
@@ -270,7 +270,7 @@ pip install kivy
 
 ```bash
 rsync -av your-alarm.mp3 your-alarm.png \
-    pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+    pi@picuentacuentos.local:/home/pi/picuentacuentos/assets/animal_sounds/
 rsync -av your-story.mp3 \
     pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
@@ -526,7 +526,7 @@ Volume is controlled by the external speaker hardware.
 ```json
 {
   "media": {
-    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "sounds_config": "/home/pi/picuentacuentos/assets/animal_sounds/sounds.json",
     "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   }
 }

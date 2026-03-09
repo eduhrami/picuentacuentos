@@ -91,9 +91,9 @@ System behavior
 ### 0.5 Media Conventions
 
 - Internal folder layout:
-  - /home/pi/picuentacuentos/media/animal_sounds: alarm sounds and images
+  - /home/pi/picuentacuentos/assets/animal_sounds: alarm sounds and images
   - /home/pi/picuentacuentos/media/stories: story files and optional icons
-  - /home/pi/picuentacuentos/media/animal_sounds/sounds.json: alarm catalog
+  - /home/pi/picuentacuentos/assets/animal_sounds/sounds.json: alarm catalog
   - /home/pi/picuentacuentos/media/stories/stories.json: story catalog
   - /home/pi/picuentacuentos/media/wallpapers/default.png: default wallpaper
 - File types: MP3 only in v2.0.
@@ -250,17 +250,17 @@ openssh-server
 │   └── settings.json               # Application settings
 │
 ├── media/
-│   ├── animal_sounds/              # Alarm sound files + images
-│   │   ├── sounds.json             # ** EDIT TO ADD/REMOVE alarm sounds **
-│   │   ├── lion.mp3
-│   │   ├── lion.png
-│   │   └── ...
 │   └── stories/                    # Story MP3 files + icons
 │       ├── stories.json            # ** EDIT TO ADD/REMOVE stories **
 │       ├── some-story.mp3
 │       └── some-icon.png           # optional per story
 │
 ├── assets/
+│   ├── animal_sounds/              # Alarm sound files + images
+│   │   ├── sounds.json             # ** EDIT TO ADD/REMOVE alarm sounds **
+│   │   ├── lion.mp3
+│   │   ├── lion.png
+│   │   └── ...
 │   ├── fonts/
 │   │   └── Roboto-Regular.ttf
 │   ├── icons/
@@ -313,7 +313,7 @@ main.py
 
 ### 3.1 Animal Sounds Config
 
-**File:** `media/animal_sounds/sounds.json`
+**File:** `assets/animal_sounds/sounds.json`
 
 ```json
 {
@@ -332,8 +332,8 @@ main.py
 |-------|------|-------------|
 | `id` | string | Unique identifier |
 | `label` | string | Display name shown in the UI |
-| `sound` | string | Filename relative to `media/animal_sounds/` |
-| `image` | string | Filename relative to `media/animal_sounds/` |
+| `sound` | string | Filename relative to `assets/animal_sounds/` |
+| `image` | string | Filename relative to `assets/animal_sounds/` |
 
 ### 3.2 Stories Config
 
@@ -410,7 +410,7 @@ class StorySettings:
 
 @dataclass
 class MediaSettings:
-    sounds_config: str = "/home/pi/picuentacuentos/media/animal_sounds/sounds.json"
+    sounds_config: str = "/home/pi/picuentacuentos/assets/animal_sounds/sounds.json"
     stories_config: str = "/home/pi/picuentacuentos/media/stories/stories.json"
 
 @dataclass
@@ -475,7 +475,7 @@ class Settings:
     "resume_playback": true
   },
   "media": {
-    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "sounds_config": "/home/pi/picuentacuentos/assets/animal_sounds/sounds.json",
     "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   },
   "system": {
@@ -597,8 +597,8 @@ is listed in them. There is no filesystem scanning or background watching.
 
 ### 9.1 Adding an Animal Sound
 
-1. Copy the `.mp3` and `.png` files into `media/animal_sounds/`.
-2. Add an entry to `media/animal_sounds/sounds.json`:
+1. Copy the `.mp3` and `.png` files into `assets/animal_sounds/`.
+2. Add an entry to `assets/animal_sounds/sounds.json`:
 
 ```json
 {

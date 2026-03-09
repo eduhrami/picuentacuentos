@@ -1,0 +1,34 @@
+{
+  "sounds": [
+    {
+      "id": "lion",
+      "label": "León",
+      "sound": "lion.mp3",
+      "image": "lion.png"
+    },
+    {
+      "id": "horse",
+      "label": "Caballo",
+      "sound": "horse.mp3",
+      "image": "horse.png"
+    },
+    {
+      "id": "elephant",
+      "label": "Elefante",
+      "sound": "elephant.mp3",
+      "image": "elephant.png"
+    },
+    {
+      "id": "rooster",
+      "label": "Gallo",
+      "sound": "rooster.mp3",
+      "image": "rooster.png"
+    },
+    {
+      "id": "komodo-dragon",
+      "label": "Dragón de Komodo",
+      "sound": "komodo-dragon.mp3",
+      "image": "komodo-dragon.png"
+    }
+  ]
+}

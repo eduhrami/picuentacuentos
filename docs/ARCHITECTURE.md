@@ -460,7 +460,7 @@ CREATE INDEX idx_media_type ON media_files(file_type);
     "resume_playback": true
   },
   "media": {
-    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "sounds_config": "/home/pi/picuentacuentos/assets/animal_sounds/sounds.json",
     "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   },
   "system": {
@@ -524,17 +524,17 @@ CREATE INDEX idx_media_type ON media_files(file_type);
 │   └── backups/                  # DB backups
 │
 ├── media/
-│   ├── animal_sounds/            # Alarm sounds + images
-│   │   └── sounds.json            # Alarm catalog
 │   └── stories/                  # Story files + icons
 │       └── stories.json           # Story catalog
 │
-├── logs/
-│   └── app.log                   # Application logs
-│
 ├── assets/
+│   ├── animal_sounds/            # Alarm sounds + images
+│   │   └── sounds.json            # Alarm catalog
 │   ├── fonts/                    # UI fonts
 │   └── icons/                    # UI icons
+│
+├── logs/
+│   └── app.log                   # Application logs
 │
 ├── tests/
 │   ├── test_audio.py

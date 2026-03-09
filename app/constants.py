@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_DIR = BASE_DIR / "media"
 STORIES_DIR = MEDIA_DIR / "stories"
-ANIMAL_SOUNDS_DIR = MEDIA_DIR / "animal_sounds"
+ANIMAL_SOUNDS_DIR = BASE_DIR / "assets" / "animal_sounds"
 WALLPAPER_PATH = MEDIA_DIR / "wallpapers" / "default.png"
 FALLBACK_WALLPAPER = MEDIA_DIR / "wallpapers" / "default.jpg"
 
@@ -17,6 +17,7 @@ PREV_ICON = ICONS_DIR / "prev.png"
 NEXT_ICON = ICONS_DIR / "next.png"
 PLAY_ICON = ICONS_DIR / "play.png"
 PAUSE_ICON = ICONS_DIR / "pause.png"
+ADD_ICON = ICONS_DIR / "add.png"
 
 SOUNDS_JSON = ANIMAL_SOUNDS_DIR / "sounds.json"
 STORIES_JSON = STORIES_DIR / "stories.json"

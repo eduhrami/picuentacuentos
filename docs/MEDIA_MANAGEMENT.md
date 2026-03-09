@@ -10,20 +10,22 @@ To add or remove content, edit the JSON and restart the app.
 
 ```
 media/
-├── animal_sounds/
-│   ├── sounds.json     ← catalogue of alarm sounds
-│   ├── lion.mp3
-│   ├── lion.png
-│   └── ...
 └── stories/
     ├── stories.json    ← catalogue of stories
     ├── some-story.mp3
     └── some-icon.png   ← optional per story
+
+assets/
+└── animal_sounds/
+    ├── sounds.json     ← catalogue of alarm sounds
+    ├── lion.mp3
+    ├── lion.png
+    └── ...
 ```
 
 ---
 
-## Animal Sounds (`media/animal_sounds/sounds.json`)
+## Animal Sounds (`assets/animal_sounds/sounds.json`)
 
 Each entry needs a sound file and an image file, both in the same folder.
 
@@ -50,12 +52,12 @@ Each entry needs a sound file and an image file, both in the same folder.
 |-------|-------------|
 | `id` | Unique identifier (used internally and in alarm records) |
 | `label` | Display name shown in the UI |
-| `sound` | MP3 filename (relative to `media/animal_sounds/`) |
-| `image` | PNG filename (relative to `media/animal_sounds/`) |
+| `sound` | MP3 filename (relative to `assets/animal_sounds/`) |
+| `image` | PNG filename (relative to `assets/animal_sounds/`) |
 
 ### Add an animal sound
 
-1. Copy `mySound.mp3` and `mySound.png` into `media/animal_sounds/`
+1. Copy `mySound.mp3` and `mySound.png` into `assets/animal_sounds/`
 2. Add entry to `sounds.json`
 3. Restart: `sudo systemctl restart getty@tty1`
 
@@ -132,7 +134,7 @@ deploy workflow (see `deploy-to-pi` skill). You can also copy files manually:
 scp my-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
 # Copy a new animal sound + image
-scp frog.mp3 frog.png pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+scp frog.mp3 frog.png pi@picuentacuentos.local:/home/pi/picuentacuentos/assets/animal_sounds/
 
 # Then edit the JSON and restart
 ssh pi@picuentacuentos.local 'nano /home/pi/picuentacuentos/media/stories/stories.json'

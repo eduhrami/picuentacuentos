@@ -82,9 +82,8 @@ From your computer:
 # Upload a bedtime story
 scp my-story.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 
-# Upload an alarm sound + image
-scp alarm-sound.mp3 alarm-sound.png \
-  pi@picuentacuentos.local:/home/pi/picuentacuentos/media/animal_sounds/
+# Alarm sounds are app assets (bundled with the app).
+# To change alarm sounds, update `assets/animal_sounds/` and redeploy.
 ```
 
 ### 4. Start Using!
@@ -107,6 +106,9 @@ scp *.mp3 pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 # Sync entire folder
 rsync -av ~/my-stories/ pi@picuentacuentos.local:/home/pi/picuentacuentos/media/stories/
 ```
+
+Alarm sounds are stored under `assets/animal_sounds/` and should be updated
+in the repo and redeployed (see `MEDIA_MANAGEMENT.md`).
 
 ### GUI Clients
 
@@ -175,12 +177,11 @@ picuentacuentos/
 ├── data/                    # Data storage (JSON)
 ├── docs/                    # Project documentation
 ├── media/                   # Media files (SSH upload target)
-│   ├── animal_sounds/      # Alarm sounds + images
-│   │   └── sounds.json     # Alarm catalog
 │   └── stories/            # Story MP3 files + icons
 ├── assets/
-│   └── icons/              # UI icons (stories.png, alarm.png)
-│       └── stories.json    # Story catalog
+│   ├── animal_sounds/      # Alarm sounds + images (app assets)
+│   │   └── sounds.json     # Alarm catalog
+│   └── icons/              # UI icons
 ├── mockups/                # UI mockups (HTML)
 └── setup.sh                # Installation script
 ```
@@ -209,7 +210,7 @@ Edit `/home/pi/picuentacuentos/config/settings.json`:
     "resume_playback": true
   },
   "media": {
-    "sounds_config": "/home/pi/picuentacuentos/media/animal_sounds/sounds.json",
+    "sounds_config": "/home/pi/picuentacuentos/assets/animal_sounds/sounds.json",
     "stories_config": "/home/pi/picuentacuentos/media/stories/stories.json"
   }
 }
